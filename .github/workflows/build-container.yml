@@ -3,12 +3,6 @@ name: Build and Push Container Image
 on:
   push:
     branches: [ main ]
-    paths:
-      - '.devcontainer/**'
-      - 'users/**'
-      - 'config/**'
-      - 'flake.nix'
-      - 'terragon-setup.sh'
   pull_request:
     branches: [ main ]
     paths:
@@ -16,7 +10,6 @@ on:
       - 'users/**'
       - 'config/**'
       - 'flake.nix'
-      - 'terragon-setup.sh'
   workflow_dispatch:
 
 env:
@@ -57,6 +50,6 @@ jobs:
       with:
         context: .
         file: .devcontainer/Dockerfile
-        push: true
+        push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
