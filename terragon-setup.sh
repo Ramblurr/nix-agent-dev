@@ -67,7 +67,7 @@ activate_home_config() {
   local user host selector
   user="${USER}"
   host="$(hostname)"
-  selector="${user}@${host}"
+  selector="${user}"
 
   echo ">> Activating Home Manager configuration: ${HM_FLAKE_URI}#${selector}"
 

@@ -5,15 +5,11 @@ _: {
   modules = [
     ({ pkgs, lib, inputs, ... }: {
       imports = [
-        ./home.nix
+        ../config/home.nix
       ];
 
       home.username = "root";
       home.homeDirectory = "/root";
-      home.stateVersion = "25.05";
-      nixpkgs.config.allowUnfree = true;
-      nixpkgs.config.allowUnfreePredicate = _: true;
-      programs.home-manager.enable = true;
     })
   ];
 }

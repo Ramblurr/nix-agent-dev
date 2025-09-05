@@ -1,5 +1,10 @@
 { config, pkgs, lib, ... }:
 {
+
+  home.stateVersion = "25.05";
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfreePredicate = _: true;
+  programs.home-manager.enable = true;
   xdg.enable = true;
   home.sessionVariables = {
     XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
@@ -7,7 +12,6 @@
   };
   home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
 
-  # --- Shells
   programs.bash = {
     enable = true;
     #initExtra = ''
@@ -27,6 +31,11 @@
   };
 
   home.packages = with pkgs; [
+    jet
+    jless
+    lsof
+    ncdu
+    tree
     git
     jq
     ripgrep
@@ -35,12 +44,10 @@
     vim
     babashka
     clojure
-    clojure-lsp
-    # run-repl
     (pkgs.writeScriptBin "run-repl" ''
       #!${pkgs.bash}/bin/bash
       set -euo pipefail
-      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      PID_FILE="''${PID_FILE:-.nrepl-pid}"
       ("${pkgs.babashka}/bin/bb" dev "$@" >/dev/null 2>&1 & echo $! >"$PID_FILE")
       echo "nREPL started (pid $(cat "$PID_FILE"))"
     '')
@@ -48,7 +55,7 @@
     (pkgs.writeScriptBin "kill-repl" ''
       #!${pkgs.bash}/bin/bash
       set -euo pipefail
-      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      PID_FILE="''${PID_FILE:-.nrepl-pid}"
       [[ -s "$PID_FILE" ]] || { echo "No PID file: $PID_FILE"; exit 1; }
       pid="$(cat "$PID_FILE")"
       if kill -0 "$pid" 2>/dev/null; then
@@ -62,8 +69,8 @@
     (pkgs.writeScriptBin "restart-repl" ''
       #!${pkgs.bash}/bin/bash
       set -euo pipefail
-      PORT_FILE="${PORT_FILE:-.nrepl-port}"
-      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      PORT_FILE="''${PORT_FILE:-.nrepl-port}"
+      PID_FILE="''${PID_FILE:-.nrepl-pid}"
       port=""
       [[ -s "$PORT_FILE" ]] && port="$(cat "$PORT_FILE")"
       kill-repl || true

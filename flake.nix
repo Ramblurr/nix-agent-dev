@@ -10,6 +10,6 @@
   outputs = { flakelight, home-manager, ... }@inputs:
     flakelight ./. ({ config, ... }: {
       inherit inputs;
-      homeConfigurations.root = import ./home/root.nix inputs;
+      homeConfigurations.root = import ./users/root.nix inputs;
     });
 }
