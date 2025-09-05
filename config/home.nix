@@ -14,11 +14,6 @@
 
   programs.bash = {
     enable = true;
-    #initExtra = ''
-    #  if [ -f "${config.home.homeDirectory}/.auto-repl" ] && [ -f "bb.edn" ]; then
-    #    "${config.home.homeDirectory}/.local/bin/run-repl" >/dev/null 2>&1 &
-    #  fi
-    #'';
   };
 
   programs.direnv = {
@@ -41,17 +36,10 @@
     };
 
   home.packages = with pkgs; [
-    jet
-    jless
-    lsof
-    ncdu
-    tree
     git
     jq
     ripgrep
-    fd
     tmux
-    vim
     babashka
     clojure
     (pkgs.writeScriptBin "run-clojure-mcp" ''

@@ -4,9 +4,6 @@ XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
 
-### Minimal Nix + Home Manager bootstrap for Ubuntu 24.04
-
-# --- Config you may override via env ---
 : "${HM_FLAKE_URI:=github:Ramblurr/nix-agent-dev}"
 
 # Detect shell rc to append sourcing line (only if missing)
@@ -71,33 +68,25 @@ activate_home_config() {
 
   echo ">> Activating Home Manager configuration: ${HM_FLAKE_URI}#${selector}"
 
-  # Use the HM flake runner (no prior HM install needed)
-  nix run --extra-experimental-features 'nix-command flakes' \
+  time nix run --extra-experimental-features 'nix-command flakes' \
     github:nix-community/home-manager -- switch \
-    --impure \
+    --impure --max-jobs $(nproc) --show-trace \
     --flake "${HM_FLAKE_URI}#${selector}"
 }
 
 main() {
   echo "=== Minimal Nix + Home Manager bootstrap ==="
 
-  # 1) Install Nix (daemon) if needed
   install_nix_if_needed
-
-  # 2) Make nix available in this shell + future shells
   source_nix_profile
   persist_nix_profile_in_shell_rc
-
-  # 3) Ensure user-level flakes are enabled
   ensure_nix_user_config
 
-  # Safety: confirm nix works now
   if ! command -v nix >/dev/null 2>&1; then
-    echo "!! nix command not found after install. Please re-login and rerun this script."
+    echo "!! nix command not found after install."
     exit 1
   fi
 
-  # 4) Fetch and activate Ramblurr/agent-remote-dev home configuration
   activate_home_config
 
   echo "=== Done. If this was your first Nix install, log out/in for shells to pick up Nix by default. ==="
