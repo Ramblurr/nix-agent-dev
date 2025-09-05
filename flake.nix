@@ -12,5 +12,6 @@
       inherit inputs;
       homeConfigurations.root = import ./users/root.nix inputs;
       homeConfigurations.vscode = import ./users/vscode.nix inputs;
+      homeConfigurations.devbox = import ./users/devbox.nix inputs;
     });
 }

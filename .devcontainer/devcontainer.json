@@ -1,17 +1,12 @@
-// The Dev Container format allows you to configure your environment. At the heart of it
-// is a Docker image or Dockerfile which controls the tools available in your environment.
-//
-// See https://aka.ms/devcontainer.json for more information.
 {
-	"name": "Ona",
 	"build": {
         "context": "..",
         "dockerfile": ".devcontainer/Dockerfile"
     },
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"remoteUser": "vscode",
+	"remoteUser": "devbox",
 	"containerEnv": {
 		"HM_FLAKE_URI": "github:Ramblurr/nix-agent-dev"
 	},
-	"postCreateCommand": "nix run github:nix-community/home-manager -- switch --impure --flake github:Ramblurr/nix-agent-dev#vscode"
+	"postCreateCommand": "nix run github:nix-community/home-manager -- switch --impure --flake github:Ramblurr/nix-agent-dev#devbox"
 }

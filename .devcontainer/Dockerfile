@@ -1,7 +1,7 @@
 # renovate: datasource=github-tags depName=devbox packageName=jetify-com/devbox
 ARG DEVBOX_VERSION=0.16.0
 FROM jetpackio/devbox:${DEVBOX_VERSION}
-ENV DEVBOX_USER=vscode
+ENV DEVBOX_USER=devbox
 ENV HM_FLAKE_URI=github:Ramblurr/nix-agent-dev
 WORKDIR /home/${DEVBOX_USER}
 
