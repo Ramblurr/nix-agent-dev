@@ -5,19 +5,26 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends curl xz-utils sudo \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy the setup script
-COPY terragon-setup.sh /tmp/terragon-setup.sh
-RUN chmod +x /tmp/terragon-setup.sh
+#VOLUME /nix
 
-# Set environment variable to point to the correct repo for home manager config
+RUN curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
+  --extra-conf "sandbox = false" \
+  --init none \
+  --no-confirm
+
+ENV PATH="/nix/var/nix/profiles/default/bin:${PATH}"
+ENV USER=vscode
+
+# Basic Nix configuration (as root)
+# Ensure /etc/nix exists before trying to write to nix.conf
+RUN mkdir -p /etc/nix && \
+    echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf && \
+    echo "trusted-users = root ${USER} @wheel" >> /etc/nix/nix.conf
+
 ENV HM_FLAKE_URI=github:Ramblurr/nix-agent-dev
+RUN . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && \
+  nix build --impure --no-write-lock-file "${HM_FLAKE_URI}#homeConfigurations.${USER}.activationPackage" --no-link
 
-# Switch to vscode user and run setup
-USER vscode
-WORKDIR /home/vscode
-
-# Run the setup script to install Nix and activate home manager
-RUN /tmp/terragon-setup.sh
-
-# Ensure nix is available in PATH for subsequent commands
+USER ${USER}
+WORKDIR /home/${USER}
 ENV PATH="/nix/var/nix/profiles/default/bin:${PATH}"
