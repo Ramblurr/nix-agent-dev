@@ -4,12 +4,13 @@
     flakelight.url = "github:nix-community/flakelight";
     flakelight.inputs.nixpkgs.follows = "nixpkgs";
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    home-manger.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { flakelight, home-manager, ... }@inputs:
     flakelight ./. ({ config, ... }: {
       inherit inputs;
       homeConfigurations.root = import ./users/root.nix inputs;
+      homeConfigurations.vscode = import ./users/vscode.nix inputs;
     });
 }
