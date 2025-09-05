@@ -5,14 +5,11 @@
     flakelight.inputs.nixpkgs.follows = "nixpkgs";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     home-manger.url = "github:nix-community/home-manager";
-    home-manager.nixpkgs.follows = "nixpkgs";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { flakelight, home-manager, ... }@inputs:
     flakelight ./. ({ config, ... }: {
       inherit inputs;
-      homeConfigurations.username = {
-        system = "x86_64-linux";
-        modules = [{ home.stateVersion = "25.05"; }];
-      };
+      homeConfigurations.root = import ./home/root.nix inputs;
     });
 }
