@@ -1,100 +1,80 @@
 { config, pkgs, lib, ... }:
-let
-  user = builtins.getEnv "USER";
-  homeDir = builtins.getEnv "HOME";
-in
 {
-  # --- Identity & paths
-  home.username = lib.mkDefault user;
-  home.homeDirectory = lib.mkDefault homeDir;
-  home.stateVersion = "24.05"; # adjust if your HM version differs
-
-  # Enable XDG and set common session vars the script exported
   xdg.enable = true;
   home.sessionVariables = {
     XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
     XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
   };
-  # Ensure ~/.local/bin is on PATH (used below for custom scripts)
   home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
 
   # --- Shells
   programs.bash = {
     enable = true;
-    # HM will inject direnv hooks automatically (see programs.direnv below)
-    initExtra = ''
-      # Optional: auto-start a repl in dirs containing bb.edn when a toggle file exists
-      if [ -f "${config.home.homeDirectory}/.auto-repl" ] && [ -f "bb.edn" ]; then
-        "${config.home.homeDirectory}/.local/bin/run-repl" >/dev/null 2>&1 &
-      fi
-    '';
-  };
-  programs.zsh = {
-    enable = true;
-    initExtra = config.programs.bash.initExtra;
+    #initExtra = ''
+    #  if [ -f "${config.home.homeDirectory}/.auto-repl" ] && [ -f "bb.edn" ]; then
+    #    "${config.home.homeDirectory}/.local/bin/run-repl" >/dev/null 2>&1 &
+    #  fi
+    #'';
   };
 
-  # --- Direnv + nix-direnv (replaces manual hook & config)
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
     config = {
-      warn_timeout = "10s"; # mirrors the simple direnv.toml created in the script
+      warn_timeout = "30s";
+      whitelist.prefix = [ "~/" ];
     };
   };
 
-  # --- Packages the script likely ensured were present
-  # Tune this list to match your original script's toolset.
   home.packages = with pkgs; [
-    direnv
-    nix-direnv
     git
     jq
     ripgrep
     fd
     tmux
-    neovim
+    vim
     babashka
     clojure
     clojure-lsp
-  ];
-
-  # --- Files written by the script
-  # ~/.config/direnv/direnv.toml
-  xdg.configFile."direnv/direnv.toml".text = ''
-    [global]
-    warn_timeout = "10s"
-  '';
-
-  # ~/.local/bin/run-repl (created & chmod +x by the script)
-  home.file.".local/bin/run-repl" = {
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
+    # run-repl
+    (pkgs.writeScriptBin "run-repl" ''
+      #!${pkgs.bash}/bin/bash
       set -euo pipefail
+      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      ("${pkgs.babashka}/bin/bb" dev "$@" >/dev/null 2>&1 & echo $! >"$PID_FILE")
+      echo "nREPL started (pid $(cat "$PID_FILE"))"
+    '')
 
-      # Start a Clojure nREPL in the current project.
-      # If a bb.edn is present, prefer babashka's nREPL for fast utility REPLs.
-      if [ -f "bb.edn" ]; then
-        exec ${pkgs.babashka}/bin/bb --nrepl-server 127.0.0.1:7888
+    (pkgs.writeScriptBin "kill-repl" ''
+      #!${pkgs.bash}/bin/bash
+      set -euo pipefail
+      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      [[ -s "$PID_FILE" ]] || { echo "No PID file: $PID_FILE"; exit 1; }
+      pid="$(cat "$PID_FILE")"
+      if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" || true
+        for _ in {1..20}; do kill -0 "$pid" 2>/dev/null || { rm -f "$PID_FILE"; echo "Killed $pid"; exit 0; }; sleep 0.1; done
+        echo "Process $pid did not exit"; exit 1
       else
-        exec ${pkgs.clojure}/bin/clojure \
-          -Sdeps '{:deps {nrepl/nrepl {:mvn/version "1.1.1"}}}' \
-          -M -m nrepl.cmdline --host 127.0.0.1 --port 7888
+        echo "Process $pid not running"; rm -f "$PID_FILE" || true
       fi
-    '';
-  };
-
-  # ~/.local/bin/restart-repl (created & chmod +x by the script)
-  home.file.".local/bin/restart-repl" = {
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
+    '')
+    (pkgs.writeScriptBin "restart-repl" ''
+      #!${pkgs.bash}/bin/bash
       set -euo pipefail
-      pkill -f 'nrepl' || true
-      sleep 0.2
-      "${HOME}/.local/bin/run-repl"
-    '';
-  };
+      PORT_FILE="${PORT_FILE:-.nrepl-port}"
+      PID_FILE="${PID_FILE:-.nrepl-pid}"
+      port=""
+      [[ -s "$PORT_FILE" ]] && port="$(cat "$PORT_FILE")"
+      kill-repl || true
+      if [[ -n "$port" ]]; then
+        ("${pkgs.babashka}/bin/bb" dev --port "$port" >/dev/null 2>&1 & echo $! >"$PID_FILE")
+        echo "nREPL restarted on port $port (pid $(cat "$PID_FILE"))"
+      else
+        ("${pkgs.babashka}/bin/bb" dev >/dev/null 2>&1 & echo $! >"$PID_FILE")
+        echo "nREPL restarted (auto port) (pid $(cat "$PID_FILE"))"
+      fi
+    '')
+  ];
 }
 

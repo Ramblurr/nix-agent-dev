@@ -4,7 +4,6 @@ XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
 
-
 ### Minimal Nix + Home Manager bootstrap for Ubuntu 24.04
 
 # --- Config you may override via env ---
