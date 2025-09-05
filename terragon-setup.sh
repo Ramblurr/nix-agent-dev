@@ -74,6 +74,7 @@ activate_home_config() {
   # Use the HM flake runner (no prior HM install needed)
   nix run --extra-experimental-features 'nix-command flakes' \
     github:nix-community/home-manager -- switch \
+    --impure \
     --flake "${HM_FLAKE_URI}#${selector}"
 }
 

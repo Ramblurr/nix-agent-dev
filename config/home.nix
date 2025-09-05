@@ -30,6 +30,16 @@
     };
   };
 
+  xdg.configFile."clojure/deps.edn" =
+    let
+      cljDepsUrl = "https://raw.githubusercontent.com/Ramblurr/nixcfg/refs/heads/main/modules/dev/clojure/configs/deps.edn";
+      # impure fetch
+      cljDeps = builtins.fetchurl { url = cljDepsUrl; };
+    in
+    {
+      source = cljDeps;
+    };
+
   home.packages = with pkgs; [
     jet
     jless
@@ -44,6 +54,17 @@
     vim
     babashka
     clojure
+    (pkgs.writeScriptBin "run-clojure-mcp" ''
+      #!/usr/bin/env bash
+        set -euo pipefail
+        PORT_FILE=''${1:-.nrepl-port}
+        PORT=''${1:-4888}
+        if [ -f "$PORT_FILE" ]; then
+        PORT=$(cat ''${PORT_FILE})
+        fi
+        ${clojure}/bin/clojure -X:mcp/clojure :port $PORT
+    '')
+
     (pkgs.writeScriptBin "run-repl" ''
       #!${pkgs.bash}/bin/bash
       set -euo pipefail
