@@ -37,7 +37,9 @@
       cljDeps = builtins.fetchurl { url = cljDepsUrl; };
     in
     {
-      source = cljDeps;
+      source = pkgs.replaceVars cljDeps {
+        cacheDirectory = "${config.xdg.cacheHome}/.cache/clojure";
+      };
     };
 
   home.packages = with pkgs; [
