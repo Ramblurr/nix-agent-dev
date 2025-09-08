@@ -14,7 +14,7 @@
 
   programs.bash = {
     enable = true;
-    init = (builtins.readFile ./bashInit.rc);
+    initExtra = (builtins.readFile ./bashInit.rc);
   };
 
   programs.direnv = {
@@ -47,10 +47,17 @@
     tmux
     babashka
     clojure
-    (pkgs.writeScriptBin "home-manager-switch" ''
+    (pkgs.writeScriptBin "home-manager-update" ''
       #!/usr/bin/env bash
-        set -euo pipefail
-        nix --extra-experimental-features 'nix-command flakes' run github:nix-community/home-manager -- switch --impure -b backup --flake github:Ramblurr/nix-agent-dev#${config.home.username}
+      set -euo pipefail
+      cd ~/.config/home-manager
+      git fetch origin
+      git reset --hard origin/main
+      if command -v home-manager &> /dev/null; then
+        home-manager switch --impure -b backup
+      else
+        nix run github:nix-community/home-manager -- switch --impure -b backup
+      fi
     '')
     (pkgs.writeScriptBin "run-clojure-mcp" ''
       #!/usr/bin/env bash
