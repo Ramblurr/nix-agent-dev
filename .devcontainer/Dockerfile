@@ -20,9 +20,10 @@ USER ${DEVBOX_USER}:${DEVBOX_USER}
 ENV USER=${DEVBOX_USER}
 ENV NIX_CONFIG="experimental-features = nix-command flakes"
 COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} . /home/${DEVBOX_USER}/.config/home-manager
-RUN mkdir -p /home/${DEVBOX_USER}/.config/nix \
+RUN set -x && ls -alh /home/${DEVBOX_USER}/.config/home-manager && mkdir -p /home/${DEVBOX_USER}/.config/nix \
   && echo "experimental-features = nix-command flakes" > /home/${DEVBOX_USER}/.config/nix/nix.conf \
   && nix-store --gc \
+  && cd /home/${DEVBOX_USER}/.config/home-manager \
   && nix build --extra-experimental-features 'nix-command flakes' \
   --impure --no-write-lock-file --no-link --show-trace \
-  "${HM_FLAKE_URI}#homeConfigurations.${DEVBOX_USER}.activationPackage"
+  "#homeConfigurations.${DEVBOX_USER}.activationPackage"
