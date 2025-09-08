@@ -47,37 +47,6 @@
     tmux
     babashka
     clojure
-    (pkgs.writeScriptBin "home-manager-update" ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-      cd ~/.config/home-manager
-      git fetch origin
-      git reset --hard origin/main
-      if command -v home-manager &> /dev/null; then
-        home-manager switch --impure -b backup
-      else
-        nix run github:nix-community/home-manager -- switch --impure -b backup
-      fi
-    '')
-    (pkgs.writeScriptBin "dev-env-start" ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-      home-manager-update
-      if [ -n "''${WORKSPACE_FOLDER:-}" ]; then
-        cd "$WORKSPACE_FOLDER"
-        nix develop --command -- echo "Start hook: Prepared env for $WORKSPACE_FOLDER"
-      fi
-    '')
-    (pkgs.writeScriptBin "dev-env-poststart" ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-      home-manager-update
-      if [ -n "''${WORKSPACE_FOLDER:-}" ]; then
-        cd "$WORKSPACE_FOLDER"
-        nix develop
-        nix develop --command -- echo "Post start hook: Prepared env for $WORKSPACE_FOLDER"
-      fi
-    '')
     (pkgs.writeScriptBin "run-clojure-mcp" ''
       #!/usr/bin/env bash
         set -euo pipefail
