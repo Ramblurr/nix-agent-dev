@@ -1,12 +1,12 @@
 {
-	"build": {
-        "context": "..",
-        "dockerfile": ".devcontainer/Dockerfile"
-    },
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"remoteUser": "devbox",
-	"containerEnv": {
-		"HM_FLAKE_URI": "github:Ramblurr/nix-agent-dev"
-	},
-	"postCreateCommand": "nix run github:nix-community/home-manager -- switch --impure --flake github:Ramblurr/nix-agent-dev#devbox"
+  "build": {
+    "context": "..",
+    "dockerfile": ".devcontainer/Dockerfile"
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "devbox",
+  "containerEnv": {
+    "HM_FLAKE_URI": "github:Ramblurr/nix-agent-dev"
+  },
+  "postCreateCommand": "nix run github:nix-community/home-manager -- switch --impure --flake github:Ramblurr/nix-agent-dev#devbox"
 }
