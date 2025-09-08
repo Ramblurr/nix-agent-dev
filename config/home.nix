@@ -43,6 +43,8 @@
     };
 
   home.packages = with pkgs; [
+    dumbpipe
+    magic-wormhole-rs
     git
     jq
     ripgrep
