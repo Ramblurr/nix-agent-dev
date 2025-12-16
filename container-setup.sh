@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ -n "$CLAUDE_ENV_FILE" ]; then
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   ENV_BEFORE=$(export -p | sort)
 fi
 
@@ -13,7 +13,7 @@ mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
 echo "export XDG_CACHE_HOME=$XDG_CACHE_HOME" >> ~/.bashrc
 echo "export XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >> ~/.bashrc
 
-if [ -n "$CLAUDE_ENV_FILE" ]; then
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   echo "export XDG_CACHE_HOME=$XDG_CACHE_HOME" >> "$CLAUDE_ENV_FILE"
   echo "export XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >> "$CLAUDE_ENV_FILE"
 fi
@@ -151,7 +151,7 @@ fi
 BIN_DIR="${HOME}/.local/bin"; mkdir -p "$BIN_DIR"
 echo 'export PATH=$HOME/.local/bin/:$PATH' >> ~/.bashrc
 
-if [ -n "$CLAUDE_ENV_FILE" ]; then
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   echo 'export PATH=$HOME/.local/bin/:$PATH' >> "$CLAUDE_ENV_FILE"
 fi
 
@@ -226,7 +226,7 @@ if [ -d "$WORKSPACE_ROOT" ]; then
   fi
 fi
 
-if [ -n "$CLAUDE_ENV_FILE" ]; then
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   ENV_AFTER=$(export -p | sort)
   comm -13 <(echo "$ENV_BEFORE") <(echo "$ENV_AFTER") >> "$CLAUDE_ENV_FILE"
 fi
