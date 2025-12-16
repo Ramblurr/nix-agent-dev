@@ -253,7 +253,12 @@ fi
 
 # Auto-start repl if bb.edn exists
 if [ -f "bb.edn" ]; then
-  echo "bb.edn detected, starting nREPL..."
+  echo "bb.edn detected"
+  if bb tasks 2>/dev/null | grep -q '^prep'; then
+    echo "Running bb prep..."
+    bb prep
+  fi
+  echo "Starting nREPL..."
   "$HOME/.local/bin/run-repl"
 fi
 
