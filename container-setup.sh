@@ -19,9 +19,10 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
 fi
 
 if [ -n "${CODEX_PROXY_CERT:-}" ]; then
-  echo "CODEX_PROXY_CERT detected, configured JAVA_TOOL_OPTIONS for SSL trust store"
+  echo "CODEX_PROXY_CERT detected, configured JAVA_TOOL_OPTIONS and CLOJURE_CLI_JVM_OPTS for SSL trust store"
   JAVA_SSL_OPTS="-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=PKCS12"
   export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }$JAVA_SSL_OPTS"
+  export CLOJURE_CLI_JVM_OPTS="${CLOJURE_CLI_JVM_OPTS:+$CLOJURE_CLI_JVM_OPTS }$JAVA_SSL_OPTS"
 fi
 
 echo "=== Development Environment Setup ==="
@@ -118,8 +119,9 @@ if [ -n "${SHELL_RC:-}" ]; then
         echo ""
         echo "# Java SSL trust store configuration (added by container setup)"
         echo 'export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }'"$JAVA_SSL_OPTS"'"'
+        echo 'export CLOJURE_CLI_JVM_OPTS="${CLOJURE_CLI_JVM_OPTS:+$CLOJURE_CLI_JVM_OPTS }'"$JAVA_SSL_OPTS"'"'
       } >> "$SHELL_RC"
-      echo "JAVA_TOOL_OPTIONS added to $SHELL_RC"
+      echo "JAVA_TOOL_OPTIONS and CLOJURE_CLI_JVM_OPTS added to $SHELL_RC"
     fi
   fi
 fi
