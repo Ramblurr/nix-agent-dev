@@ -18,6 +18,12 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   echo "export XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >> "$CLAUDE_ENV_FILE"
 fi
 
+if [ -n "${CODEX_PROXY_CERT:-}" ]; then
+  echo "CODEX_PROXY_CERT detected, configured JAVA_TOOL_OPTIONS for SSL trust store"
+  JAVA_SSL_OPTS="-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=PKCS12"
+  export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }$JAVA_SSL_OPTS"
+fi
+
 echo "=== Development Environment Setup ==="
 
 # Install Nix using DeterminateSystems installer
@@ -105,6 +111,17 @@ if [ -n "${SHELL_RC:-}" ]; then
 
   # Load direnv for current session
   eval "$HOOK_CMD"
+
+  if [ -n "${CODEX_PROXY_CERT:-}" ]; then
+    if ! grep -q "javax.net.ssl.trustStore" "$SHELL_RC" 2>/dev/null; then
+      {
+        echo ""
+        echo "# Java SSL trust store configuration (added by container setup)"
+        echo 'export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }'"$JAVA_SSL_OPTS"'"'
+      } >> "$SHELL_RC"
+      echo "JAVA_TOOL_OPTIONS added to $SHELL_RC"
+    fi
+  fi
 fi
 
 echo "Ensuring Maven local repository exists at: $XDG_CACHE_HOME/maven/repository"
