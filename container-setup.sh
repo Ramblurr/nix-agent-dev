@@ -37,7 +37,27 @@ if ! command -v nix &>/dev/null; then
         exit 1
     fi
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+else
+    echo "Nix is already installed"
+fi
 
+if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
+    set -x
+    echo "Starting determinate-nixd daemon"
+    nohup /usr/local/bin/determinate-nixd daemon &
+    export NIX_REMOTE=daemon
+    while ! determinate-nixd status &>/dev/null; do
+        sleep 0.1
+    done
+    export PATH="$PATH:$HOME/.nix-profile/bin/"
+    echo "Logging in to FlakeHub..."
+    TOKEN_FILE="$HOME/fh.token"
+    echo -n "$FLAKEHUB_TOKEN" >"$TOKEN_FILE"
+    determinate-nixd login token --token-file "$TOKEN_FILE"
+    rm -f "$TOKEN_FILE"
+    echo "FlakeHub login complete"
+else
+    echo "Skipping Flakehub Login, FLAKEHUB_TOKEN is not defined"
     # Source nix daemon for current session
     if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
@@ -50,19 +70,6 @@ if ! command -v nix &>/dev/null; then
         exit 0
     fi
 
-    determinate-nixd daemon &
-
-    # Login to FlakeHub if token is available
-    if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
-        echo "Logging in to FlakeHub..."
-        TOKEN_FILE="/root/fh.token"
-        echo "$FLAKEHUB_TOKEN" >"$TOKEN_FILE"
-        determinate-nixd login token --token-file "$TOKEN_FILE"
-        rm -f "$TOKEN_FILE"
-        echo "FlakeHub login complete"
-    fi
-else
-    echo "Nix is already installed"
 fi
 
 # Prepare home-manager installation
