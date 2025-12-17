@@ -21,8 +21,8 @@ fi
 echo "=== Development Environment Setup ==="
 
 # Install Nix using DeterminateSystems installer
-echo "Installing Nix..."
-if ! command -v nix &>/dev/null; then
+if ! command -v nix &>/dev/null && [[ ! -f /nix/receipt.json ]]; then
+    echo "Installing Nix..."
     if ! command -v curl &>/dev/null; then
         echo "Error: curl is required but not installed." >&2
         exit 1
@@ -33,13 +33,12 @@ else
 fi
 
 if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
-    set -x
     echo "Starting determinate-nixd daemon"
     nohup /usr/local/bin/determinate-nixd daemon &
-    export NIX_REMOTE=daemon
     while ! determinate-nixd status &>/dev/null; do
         sleep 0.1
     done
+    export NIX_REMOTE=daemon
     export PATH="$PATH:$HOME/.nix-profile/bin/"
     echo "Logging in to FlakeHub..."
     TOKEN_FILE="$HOME/fh.token"
@@ -74,18 +73,33 @@ echo ""
 set +u
 set +e
 
+set -x
+
+mv $HOME/.bashrc $HOME/.bashrc.orig
+mv /$HOME/.profile $HOME/.profile.orig
+rm -rf $HOME/.config/clojure
+rm -rf /$HOME/.config/direnv
+nix profile list
+nix profile remove direnv
+
 # Home Manager helper scripts
 cat >"$BIN_DIR/home-manager-update" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-cd "$XDG_CONFIG_HOME/home-manager"
-git fetch origin
-git reset --hard origin/main
-if command -v home-manager &> /dev/null; then
-  home-manager switch --impure -b backup
+target="$XDG_CONFIG_HOME/home-manager"
+if [[ ! -d "$target" ]]; then
+    git clone https://github.com/Ramblurr/nix-agent-dev "$target"
+    cd "$target"
 else
-  nix run github:nix-community/home-manager -- switch --impure -b backup
+    cd "$target"
+    git fetch
+    git reset --hard origin/main
+fi
+if command -v home-manager &> /dev/null; then
+    home-manager switch --impure -b backup
+else
+    nix run github:nix-community/home-manager -- switch --impure -b backup
 fi
 EOF
 chmod +x "$BIN_DIR/home-manager-update"

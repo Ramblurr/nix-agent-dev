@@ -5,6 +5,11 @@
 , ...
 }:
 
+let
+  javaVersion = "25";
+  jdk = pkgs."jdk${javaVersion}";
+  clojure = pkgs.clojure.override { inherit jdk; };
+in
 {
 
   home.stateVersion = "25.05";
@@ -44,15 +49,16 @@
     }/share/clojure/deps.edn";
   };
 
-  home.packages = with pkgs; [
-    dumbpipe
-    magic-wormhole-rs
-    git
-    jq
-    ripgrep
-    tmux
-    babashka
+  home.packages = [
+    jdk
     clojure
+    pkgs.dumbpipe
+    pkgs.magic-wormhole-rs
+    pkgs.git
+    pkgs.jq
+    pkgs.ripgrep
+    pkgs.tmux
+    pkgs.babashka
     (pkgs.writeScriptBin "run-clojure-mcp" ''
       #!/usr/bin/env bash
         set -euo pipefail
