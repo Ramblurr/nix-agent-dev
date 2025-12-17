@@ -8,10 +8,41 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { flakelight, home-manager, ... }@inputs:
-    flakelight ./. ({ config, ... }: {
-      inherit inputs;
-      homeConfigurations.root = import ./users/root.nix inputs;
-      homeConfigurations.vscode = import ./users/vscode.nix inputs;
-    });
+  outputs =
+    { self
+    , flakelight
+    , home-manager
+    , ...
+    }@inputs:
+    flakelight ./. (
+      { config, ... }:
+      {
+        inherit inputs;
+        homeConfigurations.root = import ./users/root.nix inputs;
+        homeConfigurations.vscode = import ./users/vscode.nix inputs;
+
+        withOverlays = [
+          self.overlays.default
+        ];
+        packages = {
+          ramblurr-global-deps-edn =
+            { runCommand
+            , replaceVars
+            , cacheDirectory ? "~/.cache/clojure"
+            , ...
+            }:
+            let
+              depsEdn = replaceVars ./config/deps.edn { inherit cacheDirectory; };
+            in
+            runCommand "ramblurr-global-deps-edn" { passthru = { inherit cacheDirectory; }; } ''
+              mkdir -p $out/share/clojure
+              cp ${depsEdn} $out/share/clojure/deps.edn
+            '';
+        };
+        flakelight.builtinFormatters = false;
+        formatters = pkgs: {
+          "*.nix" = "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt";
+        };
+      }
+    );
 }

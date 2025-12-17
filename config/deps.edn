@@ -1,0 +1,161 @@
+{;; ---------------------------------------------------
+ ;; Default Paths
+ ;; Directories to include in the classpath to run the application
+ ;; Development only paths should be defined in aliases, eg. :env/dev
+ ;; Project deps.edn file superceeds this setting
+ :paths ["src"]
+
+ :deps {org.clojure/clojure {:mvn/version "1.12.4"}}
+
+ ;; do not use ~/.m2
+ :mvn/local-repo "@cacheDirectory@/maven/repository"
+
+ :mvn/repos {"central"  {:url "https://repo1.maven.org/maven2/"}
+             "clojars"  {:url "https://repo.clojars.org/"} #_()
+             "sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots/"}}
+
+ :aliases
+ {;; -------------------------------------
+
+  ;; - My primary REPL setup for development
+  :repl/dev
+  {:extra-deps {djblue/portal                 {:mvn/version "0.62.0"}
+                clj-commons/clj-yaml          {:mvn/version "1.0.29"} ; portal yaml support (optional)
+                io.github.tonsky/clj-reload   {:mvn/version "1.0.0"}
+                nrepl/nrepl                   {:mvn/version "1.5.1"}
+                cider/cider-nrepl             {:mvn/version "0.58.0"}
+                refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}
+                criterium/criterium           {:mvn/version "0.4.6"}
+                com.github.gnl/playback       {:mvn/version "0.5.4"}
+                jedi-time/jedi-time           {:mvn/version "0.2.1"}
+                lambdaisland/ansi             {:mvn/version "0.2.37"}
+                vvvvalvalval/scope-capture    {:mvn/version "0.3.3"}
+                com.datomic/dev.datafy        {:git/sha "02f8520"
+                                               :git/tag "v0.1"
+                                               :git/url "https://github.com/Datomic/dev.datafy.git"}
+                my/dev-repl                   {:git/sha "42127999fd534b47f5e0fa5689fa68fe34c81752"
+                                               :git/url "https://github.com/Ramblurr/clojure-dev-repl.git"}}
+   :main-opts  ["-m" "ol.dev.repl"]}
+
+  ;; -------------------------------------
+
+  ;; - A secondary REPL setup for development, with less dependencies
+  :repl/lite
+  {:extra-deps {nrepl/nrepl                   {:mvn/version "1.5.1"}
+                cider/cider-nrepl             {:mvn/version "0.58.0"}
+                refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}
+                my/dev-repl                   {:git/sha "8f84a7e294b4353cde64a163976da050b39963b6"
+                                               :git/url "https://github.com/Ramblurr/clojure-dev-repl.git"}}
+   :main-opts  ["-m" "ol.dev.repl"]}
+
+  ;; -------------------------------------
+
+  :repl/clerk
+  {:extra-deps {io.github.nextjournal/clerk   {:mvn/version "0.18.1158"}
+                nrepl/nrepl                   {:mvn/version "1.5.1"}
+                cider/cider-nrepl             {:mvn/version "0.58.0"}
+                refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}}
+   :main-opts  ["--eval" "(require '[nextjournal.clerk])(nextjournal.clerk/show! 'nextjournal.clerk.tap)(nextjournal.clerk/serve! {:browse? true})"
+                "-m" "nrepl.cmdline"
+                "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"
+                "--interactive"]}
+
+  ;; -------------------------------------
+  ;; use portal from the cli
+  ;; cat data | bb -cp `clojure -Spath -M:portal/cli` -m portal.main [edn|json|transit|yaml]
+
+  :portal/cli
+  {:main-opts  ["-m" "portal.main"]
+   :extra-deps {djblue/portal        {:mvn/version "LATEST"}
+                clj-commons/clj-yaml {:mvn/version "1.0.29"}}}
+
+  ;; -------------------------------------
+
+  ;; report project dependencies that have newer versions available:
+  ;; cd project-directory && clojure -T:deps/outdated
+  :deps/outdated
+  {:replace-paths ["."]
+   :replace-deps  {com.github.liquidz/antq {:mvn/version "2.11.1276"}
+                   org.slf4j/slf4j-nop     {:mvn/version "2.0.17"}}
+   :exec-fn       antq.tool/outdated
+   :exec-args     {:directory        ["."]         ; default
+                   :exclude          ["org.clojure/tools.deps.alpha"
+                                      "org.clojure/clojurescript"]
+                   :skip             ["boot" "leiningen"]
+                   :reporter         "table"
+                   :verbose          false
+                   :upgrade          false
+                   :force            false
+                   :changes-in-table true
+                   :no-changes       true}}
+
+  ;; - interactively upgrade project dependencies that have newer versions available:
+  ;; cd project-directory && clojure -T:deps/outdated-upgrade
+  :deps/outdated-upgrade
+  {:replace-paths ["."]
+   :replace-deps  {com.github.liquidz/antq {:mvn/version "2.11.1276"}
+                   org.slf4j/slf4j-nop     {:mvn/version "2.0.17"}}
+   :exec-fn       antq.tool/outdated
+   :exec-args     {:directory        ["."]         ; default
+                   :exclude          ["org.clojure/tools.deps.alpha"
+                                      "org.clojure/clojurescript"]
+                   :skip             ["boot" "leiningen"]
+                   :reporter         "table"
+                   :verbose          false
+                   :upgrade          true
+                   :force            false
+                   :changes-in-table true
+                   :no-changes       true}}
+
+  :check {:extra-deps {io.github.athos/clj-check {:git/tag "0.1.0" :git/sha "0ca84df"}}
+          :main-opts  ["-m" "clj-check.check"]}
+
+  ;; -------------------------------------
+
+  ;; - start a clojure-mcp server, requires run-clojure-mcp script, see modules/dev/clojure/default.nix
+  ;;  claude mcp add clojure-mcp -- run-clojure-mcp
+  :mcp/clojure
+  {:deps    {org.slf4j/slf4j-nop     {:mvn/version "2.0.17"}
+             com.bhauman/clojure-mcp {:git/url "https://github.com/bhauman/clojure-mcp.git"
+                                      :git/tag "v0.1.12"
+                                      :git/sha "79b9d5a00bad66920ca2f602e018e40adf7546cc"}}
+   :exec-fn clojure-mcp.main/start-mcp-server}
+
+  ;; -------------------------------------
+
+  ;; - fix namespaces whos requires+imports are unused and not well sorted
+  ;; cd project-directory && clojure -T:fmt/ns-fix
+  :fmt/ns-fix
+  {:replace-deps {com.github.clojure-lsp/clojure-lsp
+                  {:git/tag   "2025.04.23-18.16.46"
+                   :git/sha   "454c86a"
+                   :deps/root "cli"}}
+   :exec-fn      clojure-lsp.api/clean-ns!
+   :exec-args    {:dry? false}}
+
+  ;; -------------------------------------
+
+  ;; - report namespaces whos requires+imports are unused and not well sorted
+  ;; cd project-directory && clojure -T:fmt/ns-check
+  :fmt/ns-check
+  {:replace-deps {com.github.clojure-lsp/clojure-lsp {:git/tag   "2025.04.23-18.16.46"
+                                                      :git/sha   "454c86a"
+                                                      :deps/root "cli"}}
+   :exec-fn      clojure-lsp.api/clean-ns!
+   :exec-args    {:dry? true}}
+
+  ;; -------------------------------------
+
+  ;; - search through code for unused vars and remove them
+  ;; clojure -M:search/unused-vars --opts '{:paths ["src" "test"]}'
+  :fmt/unused-vars
+  {:extra-deps {borkdude/carve
+                {:git/url "https://github.com/borkdude/carve"
+                 :sha     "fdd1d0bc432f63db69e3a72167ef5e46f10dfba7"}}
+   :main-opts  ["--main" "carve.main"]}
+
+  ;; -------------------------------------
+
+  ;; use this at the end of your aliases to cancel any main opts in earlier
+  ;; aliases, e.g., clojure -M:test:no-main to avoid running tests:
+  :no-main {:main-opts []}}}

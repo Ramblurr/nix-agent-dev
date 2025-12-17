@@ -1,4 +1,13 @@
-{ config, pkgs, lib, ... }:
+{ inputs
+, config
+, pkgs
+, lib
+, ...
+}:
+
+let
+  #depsEdn = inputs.self.packages.${pkgs.system}.ramblurr-global-deps-edn.override {
+in
 {
 
   home.stateVersion = "25.05";
@@ -32,14 +41,19 @@
 
   xdg.configFile."clojure/deps.edn" =
     let
-      cljDepsUrl = "https://raw.githubusercontent.com/Ramblurr/nixcfg/refs/heads/main/modules/dev/clojure/configs/deps.edn";
+      #cljDepsUrl = "https://raw.githubusercontent.com/Ramblurr/nixcfg/refs/heads/main/modules/dev/clojure/configs/deps.edn";
       # impure fetch
-      cljDeps = builtins.fetchurl { url = cljDepsUrl; };
+      #cljDeps = builtins.fetchurl { url = cljDepsUrl; };
     in
     {
-      source = pkgs.replaceVars cljDeps {
-        cacheDirectory = "${config.xdg.cacheHome}/.cache/clojure";
-      };
+      source = "${
+        (pkgs.ramblurr-global-deps-edn.override {
+          cacheDirectory = config.xdg.cacheHome;
+        })
+      }/share/clojure/deps.edn";
+      #   pkgs.replaceVars cljDeps {
+      #   cacheDirectory = "${config.xdg.cacheHome}/.cache/clojure";
+      # };
     };
 
   home.packages = with pkgs; [
@@ -102,4 +116,3 @@
     '')
   ];
 }
-
