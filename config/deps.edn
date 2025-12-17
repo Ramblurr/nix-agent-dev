@@ -44,7 +44,7 @@
   {:extra-deps {nrepl/nrepl                   {:mvn/version "1.5.1"}
                 cider/cider-nrepl             {:mvn/version "0.58.0"}
                 refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}
-                my/dev-repl                   {:git/sha "8f84a7e294b4353cde64a163976da050b39963b6"
+                my/dev-repl                   {:git/sha "42127999fd534b47f5e0fa5689fa68fe34c81752"
                                                :git/url "https://github.com/Ramblurr/clojure-dev-repl.git"}}
    :main-opts  ["-m" "ol.dev.repl"]}
 
