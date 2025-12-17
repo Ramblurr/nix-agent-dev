@@ -49,9 +49,24 @@ if ! command -v nix &>/dev/null; then
         echo "Please restart your shell and run this script again to continue setup."
         exit 0
     fi
+
+    determinate-nixd daemon &
+
+    # Login to FlakeHub if token is available
+    if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
+        echo "Logging in to FlakeHub..."
+        TOKEN_FILE="/root/fh.token"
+        echo "$FLAKEHUB_TOKEN" >"$TOKEN_FILE"
+        determinate-nixd login token --token-file "$TOKEN_FILE"
+        rm -f "$TOKEN_FILE"
+        echo "FlakeHub login complete"
+    fi
 else
     echo "Nix is already installed"
 fi
+
+# Prepare home-manager installation
+nix build --impure --no-write-lock-file --no-link --show-trace "${HM_FLAKE_URI}#homeConfigurations.${USER}.activationPackage"
 
 # Install direnv
 echo "Installing direnv..."
@@ -233,9 +248,6 @@ echo ""
 
 set +u
 set +e
-
-# Prepare home-manager installation
-nix build --impure --no-write-lock-file --no-link --show-trace "${HM_FLAKE_URI}#homeConfigurations.${USER}.activationPackage"
 
 # Home Manager helper scripts
 cat >"$BIN_DIR/home-manager-update" <<'EOF'
