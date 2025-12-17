@@ -35,12 +35,12 @@ if ! command -v nix &> /dev/null; then
     exit 1
   fi
   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
-  
+
   # Source nix daemon for current session
   if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
   fi
-  
+
   # Verify Nix is working
   if ! command -v nix &> /dev/null; then
     echo "Nix installation complete, but requires shell restart."
@@ -238,10 +238,12 @@ if [ -d "$WORKSPACE_ROOT" ]; then
   if [ -n "$FLAKE_DIR" ]; then
     SYSTEM="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
     echo "Seeding Nix cache from flake at $FLAKE_DIR for $SYSTEM"
+    echo "(this could take awhile, please be patient)"
     (
       cd "$FLAKE_DIR"
       nix build ".#devShells.${SYSTEM}.default"
     )
+    echo "Seeding Nix cache complete"
   fi
 fi
 
