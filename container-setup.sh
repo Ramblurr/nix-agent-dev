@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    ENV_BEFORE=$(export -p | sort)
-fi
-
 export HM_FLAKE_URI=github:Ramblurr/nix-agent-dev
 export USER="${USER:-$(id -un)}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -14,11 +10,6 @@ mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
 
 echo "export XDG_CACHE_HOME=$XDG_CACHE_HOME" >>~/.bashrc
 echo "export XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >>~/.bashrc
-
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    echo "export XDG_CACHE_HOME=$XDG_CACHE_HOME" >>"$CLAUDE_ENV_FILE"
-    echo "export XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >>"$CLAUDE_ENV_FILE"
-fi
 
 if [ -n "${CODEX_PROXY_CERT:-}" ]; then
     echo "CODEX_PROXY_CERT detected, configured JAVA_TOOL_OPTIONS and CLOJURE_CLI_JVM_OPTS for SSL trust store"
@@ -78,10 +69,6 @@ nix build --impure --no-write-lock-file --no-link --show-trace "${HM_FLAKE_URI}#
 BIN_DIR="${HOME}/.local/bin"
 mkdir -p "$BIN_DIR"
 echo 'export PATH=$HOME/.local/bin/:$PATH' >>~/.bashrc
-
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    echo 'export PATH=$HOME/.local/bin/:$PATH' >>"$CLAUDE_ENV_FILE"
-fi
 
 echo ""
 set +u
@@ -143,22 +130,6 @@ if [ -d "$WORKSPACE_ROOT" ]; then
             nix build ".#devShells.${SYSTEM}.default"
         )
         echo "Seeding Nix cache complete"
-    fi
-fi
-
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    ENV_AFTER=$(export -p | sort)
-    comm -13 <(echo "$ENV_BEFORE") <(echo "$ENV_AFTER") >>"$CLAUDE_ENV_FILE"
-fi
-if [ -n "${CODEX_PROXY_CERT:-}" ]; then
-    if ! grep -q "javax.net.ssl.trustStore" "$SHELL_RC" 2>/dev/null; then
-        {
-            echo ""
-            echo "# Java SSL trust store configuration (added by container setup)"
-            echo 'export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }'"$JAVA_SSL_OPTS"'"'
-            echo 'export CLOJURE_CLI_JVM_OPTS="${CLOJURE_CLI_JVM_OPTS:+$CLOJURE_CLI_JVM_OPTS }'"$JAVA_SSL_OPTS"'"'
-        } >>"~/.bashrc"
-        echo "JAVA_TOOL_OPTIONS and CLOJURE_CLI_JVM_OPTS added to ~/.bashrc"
     fi
 fi
 
