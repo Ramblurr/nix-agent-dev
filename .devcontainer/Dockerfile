@@ -21,44 +21,10 @@ ENV USER=${DEVBOX_USER}
 ENV NIX_CONFIG="experimental-features = nix-command flakes"
 COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} . /home/${DEVBOX_USER}/.config/home-manager
 ENV PATH="/home/${DEVBOX_USER}/.local/bin:/home/${DEVBOX_USER}/.nix-profile/bin:$PATH"
-RUN mkdir -p /home/${DEVBOX_USER}/.local/bin/ && cat > /home/${DEVBOX_USER}/.local/bin/home-manager-update << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-cd ~/.config/home-manager
-git fetch origin
-git reset --hard origin/main
-if command -v home-manager &> /dev/null; then
-  home-manager switch --impure -b backup
-else
-  nix run github:nix-community/home-manager -- switch --impure -b backup
-fi
-EOF
-
-RUN cat > /home/${DEVBOX_USER}/.local/bin/dev-env-start << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-home-manager-update
-if [ -n "${WORKSPACE_FOLDER:-}" ]; then
-  cd "$WORKSPACE_FOLDER"
-  nix develop --command -- echo "Start hook: Prepared env for $WORKSPACE_FOLDER"
-fi
-EOF
-
-RUN cat > /home/${DEVBOX_USER}/.local/bin/dev-env-poststart << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-home-manager-update
-if [ -n "${WORKSPACE_FOLDER:-}" ]; then
-  cd "$WORKSPACE_FOLDER"
-  nix develop --command -- echo "Post start hook: Prepared env for $WORKSPACE_FOLDER"
-fi
-EOF
-
-RUN mkdir -p /home/${DEVBOX_USER}/.local/bin \
-  && chmod +x /home/${DEVBOX_USER}/.local/bin/home-manager-update \
-  && chmod +x /home/${DEVBOX_USER}/.local/bin/dev-env-start \
-  && chmod +x /home/${DEVBOX_USER}/.local/bin/dev-env-poststart \
-  && chown -R ${DEVBOX_USER}:${DEVBOX_USER} /home/${DEVBOX_USER}/.local
+RUN mkdir -p /home/${DEVBOX_USER}/.local/bin/
+COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} --chmod=755 .devcontainer/home-manager-update /home/${DEVBOX_USER}/.local/bin/home-manager-update
+COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} --chmod=755 .devcontainer/dev-env-start /home/${DEVBOX_USER}/.local/bin/dev-env-start
+COPY --chown=${DEVBOX_USER}:${DEVBOX_USER} --chmod=755 .devcontainer/dev-env-poststart /home/${DEVBOX_USER}/.local/bin/dev-env-poststart
 
 RUN set -x && ls -alh /home/${DEVBOX_USER}/.config/home-manager && mkdir -p /home/${DEVBOX_USER}/.config/nix \
   && echo "experimental-features = nix-command flakes" > /home/${DEVBOX_USER}/.config/nix/nix.conf \

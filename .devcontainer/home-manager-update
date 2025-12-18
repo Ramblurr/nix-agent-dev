@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd ~/.config/home-manager
+git fetch origin
+git reset --hard origin/main
+if command -v home-manager &> /dev/null; then
+  home-manager switch --impure -b backup
+else
+  nix run github:nix-community/home-manager -- switch --impure -b backup
+fi
