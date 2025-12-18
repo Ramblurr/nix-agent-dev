@@ -3,21 +3,13 @@
 _: {
   system = "x86_64-linux";
   modules = [
-    (
-      {
-        pkgs,
-        lib,
-        inputs,
-        ...
-      }:
-      {
-        imports = [
-          ../config/home.nix
-        ];
+    ({ pkgs, lib, inputs, ... }: {
+      imports = [
+        ../config/home.nix
+      ];
 
-        home.username = "catnip";
-        home.homeDirectory = "/home/catnip";
-      }
-    )
+      home.username = "catnip";
+      home.homeDirectory = "/home/catnip";
+    })
   ];
 }

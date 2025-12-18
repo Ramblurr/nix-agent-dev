@@ -20,6 +20,7 @@
         inherit inputs;
         homeConfigurations.root = import ./users/root.nix inputs;
         homeConfigurations.vscode = import ./users/vscode.nix inputs;
+        homeConfigurations.catnip = import ./users/catnip.nix inputs;
 
         withOverlays = [
           self.overlays.default
