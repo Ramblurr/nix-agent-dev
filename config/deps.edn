@@ -30,7 +30,7 @@
                 jedi-time/jedi-time           {:mvn/version "0.2.1"}
                 lambdaisland/ansi             {:mvn/version "0.2.37"}
                 vvvvalvalval/scope-capture    {:mvn/version "0.3.3"}
-                com.datomic/dev.datafy        {:git/sha "02f8520"
+                com.datomic/dev.datafy        {:git/sha "02f8520912464df6bd55382014c03568aa1d0c36"
                                                :git/tag "v0.1"
                                                :git/url "https://github.com/Datomic/dev.datafy.git"}
                 my/dev-repl                   {:git/sha "42127999fd534b47f5e0fa5689fa68fe34c81752"
