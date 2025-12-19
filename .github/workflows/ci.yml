@@ -40,7 +40,8 @@ jobs:
         run: |
           nix flake check --all-systems
 
-  cache-dev-environment:
+  build-nix:
+    needs: nix-checks
     name: Cache Nix development environment
     runs-on: ubuntu-latest
     permissions:
@@ -64,6 +65,7 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
+    needs: build-nix
     permissions:
       id-token: write
       contents: read
