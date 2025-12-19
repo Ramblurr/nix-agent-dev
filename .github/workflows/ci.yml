@@ -17,55 +17,57 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  nix-checks:
-    name: Basic Nix checks
+  build-nix:
+    name: Build and Cache Nix development environment
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/flake-checker-action@main
-        with:
-          fail-mode: false
-
-      - uses: DeterminateSystems/nix-installer-action@main
-        with:
-          determinate: true
-
+      - uses: DeterminateSystems/determinate-nix-action@main
       - uses: DeterminateSystems/flakehub-cache-action@main
-
+      - uses: DeterminateSystems/flake-checker-action@main
       - name: nix flake check
         run: |
           nix flake check --accept-flake-config --all-systems
-
-  build-nix:
-    needs: nix-checks
-    name: Cache Nix development environment
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-        with:
-          determinate: true
-      - uses: DeterminateSystems/flakehub-cache-action@main
       - run: |
           nix build --accept-flake-config .#devShells.x86_64-linux.default
           nix build --accept-flake-config .#homeConfigurations.catnip.activationPackage
           nix build --accept-flake-config .#homeConfigurations.root.activationPackage
           nix build --accept-flake-config .#homeConfigurations.vscode.activationPackage
 
-  build-and-push:
-    runs-on: ubuntu-latest
+  publish-flakehub:
+    name: Publish to Flakehub
     needs: build-nix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'no-deploy')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@main
+      - uses: DeterminateSystems/flakehub-cache-action@main
+      - uses: DeterminateSystems/flake-checker-action@main
+      - uses: DeterminateSystems/flakehub-push@main
+        if: ${{ github.event_name != 'pull_request' }}
+        id: flakehub-push
+        with:
+          name: ramblurr/nix-agent-dev
+          rolling: true
+          visibility: public
+          include-output-paths: true
+
+  build-and-push:
+    name: Build and Push
+    needs: build-nix
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
       packages: write
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'no-deploy')
     strategy:
       matrix:
         include:

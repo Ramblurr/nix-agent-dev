@@ -28,6 +28,7 @@ if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
             echo "[nix-entrypoint] FlakeHub login successful"
         else
             echo "[nix-entrypoint] FlakeHub login failed (continuing anyway)"
+            sleep 5
         fi
 
         rm -f "$TOKEN_FILE"
@@ -36,9 +37,11 @@ if [ -n "${FLAKEHUB_TOKEN:-}" ]; then
         export NIX_REMOTE=daemon
     else
         echo "[nix-entrypoint] Warning: determinate-nixd daemon failed to start"
+        sleep 5
     fi
 else
     echo "[nix-entrypoint] FLAKEHUB_TOKEN not set, skipping FlakeHub login"
+    sleep 5
 fi
 
 # Activate home-manager as catnip user (UID 1000)
@@ -53,7 +56,7 @@ if gosu 1000:1000 bash -c '
     [ -f "$f" ] && [ ! -L "$f" ] && mv "$f" "$f.pre-home-manager"
   done
   # Run home-manager activation
-  nix run .#homeConfigurations.catnip.activationPackage
+  nix run --accept-flake-config .#homeConfigurations.catnip.activationPackage
 '; then
     echo "[nix-entrypoint] home-manager activation successful"
 else
@@ -61,7 +64,8 @@ else
 fi
 
 # Force username to catnip so it matches home-manager config
-# (catnip run overrides this with host username, but we need it to stay "catnip")
+# (catnip run overrides this with host username, but we need it to stay "catnip"
+# so that our home-manager config works)
 export CATNIP_USERNAME=catnip
 
 # Execute the original catnip entrypoint

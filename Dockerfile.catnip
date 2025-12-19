@@ -19,25 +19,16 @@ WORKDIR /workspace
 COPY --chown=catnip:catnip . /home/catnip/.config/home-manager
 
 RUN set -ex; \
+    echo '/nix/var/nix/profiles/default/bin:$PATH' >> /root/.bashrc; \
     mkdir -p /home/catnip/.config/nix; \
     echo "experimental-features = nix-command flakes" > /home/catnip/.config/nix/nix.conf; \
     find /home/catnip/.config; \
-    chown -R catnip:catnip /home/catnip/.config
-
-# Pre-build home-manager activation package (as root, since --init none)
-# Build from local copy to pick up catnip user config
-# Mark directory as safe for git (since we're running as root but directory is owned by catnip)
-RUN git config --global --add safe.directory /home/catnip/.config/home-manager \
-    && cd /home/catnip/.config/home-manager \
-    && nix build --impure --no-write-lock-file --no-link --show-trace \
-       ".#homeConfigurations.catnip.activationPackage"
-
-RUN mkdir -p /home/catnip/.local/bin && chown -R catnip:catnip /home/catnip/.local
+    git config --global --add safe.directory /home/catnip/.config/home-manager; \
+    mkdir -p /home/catnip/.local/bin;
 
 COPY --chown=catnip:catnip --chmod=755 scripts/home-manager-update /home/catnip/.local/bin/home-manager-update
 COPY --chown=catnip:catnip --chmod=755 scripts/dev-env-start /home/catnip/.local/bin/dev-env-start
 COPY --chown=catnip:catnip --chmod=755 scripts/dev-env-poststart /home/catnip/.local/bin/dev-env-poststart
-
 COPY --chmod=755 scripts/nix-entrypoint.sh /nix-entrypoint.sh
 
 ENV USER=catnip

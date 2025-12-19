@@ -12,6 +12,7 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    fh.url = "https://flakehub.com/f/DeterminateSystems/fh/0.1.*";
   };
   outputs =
     { self
