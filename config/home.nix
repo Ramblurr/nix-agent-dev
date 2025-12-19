@@ -108,5 +108,11 @@ in
         echo "nREPL restarted (auto port) (pid $(cat "$PID_FILE"))"
       fi
     '')
-  ];
+  ]
+  ++ (with inputs.llm-agents.packages.${pkgs.system}; [
+    claude-code
+    codex
+    copilot-cli
+    gemini-cli
+  ]);
 }
