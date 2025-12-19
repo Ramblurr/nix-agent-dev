@@ -3,8 +3,9 @@ set -euo pipefail
 cd ~/.config/home-manager
 git fetch origin
 git reset --hard origin/main
+# Always use the 'catnip' configuration regardless of current username
 if command -v home-manager &> /dev/null; then
-  home-manager switch --impure -b backup
+  home-manager switch --flake .#catnip --impure -b backup
 else
-  nix run github:nix-community/home-manager -- switch --impure -b backup
+  nix run .#homeConfigurations.catnip.activationPackage
 fi

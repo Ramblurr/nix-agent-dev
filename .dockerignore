@@ -1,0 +1,7 @@
+extra/
+.env
+.envrc
+result
+.clj-kondo/
+.claude/
+.lsp/

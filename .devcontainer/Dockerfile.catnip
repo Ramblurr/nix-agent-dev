@@ -1,6 +1,5 @@
 FROM docker.io/wandb/catnip:latest
 
-# Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends curl xz-utils sudo \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -12,20 +11,18 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/
     --extra-conf "sandbox = false" \
     --no-confirm
 
-# Set up nix environment for root
 ENV PATH="/nix/var/nix/profiles/default/bin:$PATH"
 
-# Create workspace
 RUN mkdir -p /workspace && chown catnip:catnip /workspace
 WORKDIR /workspace
 
-# Copy home-manager config
 COPY --chown=catnip:catnip . /home/catnip/.config/home-manager
 
-# Set up catnip user nix config
-RUN mkdir -p /home/catnip/.config/nix \
-    && echo "experimental-features = nix-command flakes" > /home/catnip/.config/nix/nix.conf \
-    && chown -R catnip:catnip /home/catnip/.config
+RUN set -ex; \
+    mkdir -p /home/catnip/.config/nix; \
+    echo "experimental-features = nix-command flakes" > /home/catnip/.config/nix/nix.conf; \
+    find /home/catnip/.config; \
+    chown -R catnip:catnip /home/catnip/.config
 
 # Pre-build home-manager activation package (as root, since --init none)
 # Build from local copy to pick up catnip user config
@@ -35,22 +32,18 @@ RUN git config --global --add safe.directory /home/catnip/.config/home-manager \
     && nix build --impure --no-write-lock-file --no-link --show-trace \
        ".#homeConfigurations.catnip.activationPackage"
 
-# Create local bin directory for catnip user
 RUN mkdir -p /home/catnip/.local/bin && chown -R catnip:catnip /home/catnip/.local
 
-# Copy helper scripts
 COPY --chown=catnip:catnip --chmod=755 .devcontainer/home-manager-update /home/catnip/.local/bin/home-manager-update
 COPY --chown=catnip:catnip --chmod=755 .devcontainer/dev-env-start /home/catnip/.local/bin/dev-env-start
 COPY --chown=catnip:catnip --chmod=755 .devcontainer/dev-env-poststart /home/catnip/.local/bin/dev-env-poststart
 
-# Copy the nix-entrypoint wrapper
 COPY --chmod=755 .devcontainer/nix-entrypoint.sh /nix-entrypoint.sh
 
-# Environment for runtime
 ENV USER=catnip
+ENV CATNIP_USERNAME=catnip
 ENV NIX_CONFIG="experimental-features = nix-command flakes"
 ENV PATH="/home/catnip/.local/bin:/home/catnip/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
-# Use our wrapper entrypoint that starts determinate-nixd then calls the original
 ENTRYPOINT ["/nix-entrypoint.sh"]
 CMD ["catnip", "serve"]
