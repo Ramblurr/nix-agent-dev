@@ -5,3 +5,4 @@ tmp/
 .clj-kondo
 .lsp
 result
+.env
