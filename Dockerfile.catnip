@@ -34,11 +34,11 @@ RUN git config --global --add safe.directory /home/catnip/.config/home-manager \
 
 RUN mkdir -p /home/catnip/.local/bin && chown -R catnip:catnip /home/catnip/.local
 
-COPY --chown=catnip:catnip --chmod=755 .devcontainer/home-manager-update /home/catnip/.local/bin/home-manager-update
-COPY --chown=catnip:catnip --chmod=755 .devcontainer/dev-env-start /home/catnip/.local/bin/dev-env-start
-COPY --chown=catnip:catnip --chmod=755 .devcontainer/dev-env-poststart /home/catnip/.local/bin/dev-env-poststart
+COPY --chown=catnip:catnip --chmod=755 scripts/home-manager-update /home/catnip/.local/bin/home-manager-update
+COPY --chown=catnip:catnip --chmod=755 scripts/dev-env-start /home/catnip/.local/bin/dev-env-start
+COPY --chown=catnip:catnip --chmod=755 scripts/dev-env-poststart /home/catnip/.local/bin/dev-env-poststart
 
-COPY --chmod=755 .devcontainer/nix-entrypoint.sh /nix-entrypoint.sh
+COPY --chmod=755 scripts/nix-entrypoint.sh /nix-entrypoint.sh
 
 ENV USER=catnip
 ENV CATNIP_USERNAME=catnip
