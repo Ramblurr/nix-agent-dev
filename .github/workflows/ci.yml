@@ -38,7 +38,7 @@ jobs:
 
       - name: nix flake check
         run: |
-          nix flake check --all-systems
+          nix flake check --accept-flake-config --all-systems
 
   build-nix:
     needs: nix-checks
@@ -54,10 +54,10 @@ jobs:
           determinate: true
       - uses: DeterminateSystems/flakehub-cache-action@main
       - run: |
-          nix build .#devShells.x86_64-linux.default
-          nix build .#homeConfigurations.catnip.activationPackage
-          nix build .#homeConfigurations.root.activationPackage
-          nix build .#homeConfigurations.vscode.activationPackage
+          nix build --accept-flake-config .#devShells.x86_64-linux.default
+          nix build --accept-flake-config .#homeConfigurations.catnip.activationPackage
+          nix build --accept-flake-config .#homeConfigurations.root.activationPackage
+          nix build --accept-flake-config .#homeConfigurations.vscode.activationPackage
 
   build-and-push:
     runs-on: ubuntu-latest
