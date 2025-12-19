@@ -60,5 +60,9 @@ else
     echo "[nix-entrypoint] home-manager activation failed (continuing anyway)"
 fi
 
+# Force username to catnip so it matches home-manager config
+# (catnip run overrides this with host username, but we need it to stay "catnip")
+export CATNIP_USERNAME=catnip
+
 # Execute the original catnip entrypoint
 exec /entrypoint.sh "$@"
