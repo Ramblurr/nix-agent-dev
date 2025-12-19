@@ -47,13 +47,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    strategy:
-      matrix:
-        target:
-          - target: .#devShells.x86_64-linux.default
-          - target: .#homeConfigurations.catnip.activationPackage
-          - target: .#homeConfigurations.root.activationPackage
-          - target: .#homeConfigurations.vscode.activationPackage
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
@@ -61,7 +54,10 @@ jobs:
           determinate: true
       - uses: DeterminateSystems/flakehub-cache-action@main
       - run: |
-          nix build ${{ matrix.target.target }}
+          nix build .#devShells.x86_64-linux.default
+          nix build .#homeConfigurations.catnip.activationPackage
+          nix build .#homeConfigurations.root.activationPackage
+          nix build .#homeConfigurations.vscode.activationPackage
 
   build-and-push:
     runs-on: ubuntu-latest
