@@ -29,3 +29,8 @@ docker build -t nix-agent-dev:devcontainer -f .devcontainer/Dockerfile .
 docker build -t nix-agent-dev:catnip -f Dockerfile.catnip .
 # also reference the .github/workflows/
 ```
+
+
+## Inspiration
+
+https://github.com/kasuboski/dotfiles/blob/c7f468d3013d5bd372a5c3a9610b63e3eec469dd/devcontainer.nix

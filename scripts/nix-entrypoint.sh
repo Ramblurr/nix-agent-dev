@@ -48,15 +48,16 @@ fi
 echo "[nix-entrypoint] Activating home-manager..."
 if gosu 1000:1000 bash -c '
   export NIX_CONFIG="experimental-features = nix-command flakes"
-  cd ~/.config/home-manager
-  git fetch origin 2>/dev/null || true
-  git reset --hard origin/main 2>/dev/null || true
-  # Backup files that home-manager wants to manage
+  #cd ~/.config/home-manager
+  #git fetch origin 2>/dev/null || true
+  #git reset --hard origin/main 2>/dev/null || true
+  ## Backup files that home-manager wants to manage
+  ## Run home-manager activation
+  #nix run --accept-flake-config .#homeConfigurations.catnip.activationPackage
   for f in ~/.bashrc ~/.profile ~/.bash_profile; do
     [ -f "$f" ] && [ ! -L "$f" ] && mv "$f" "$f.pre-home-manager"
   done
-  # Run home-manager activation
-  nix run --accept-flake-config .#homeConfigurations.catnip.activationPackage
+  nix run https://flakehub.com/f/DeterminateSystems/fh/0 -- apply home-manager --verbose ramblurr/nix-agent-dev/0
 '; then
     echo "[nix-entrypoint] home-manager activation successful"
 else
@@ -67,6 +68,23 @@ fi
 # (catnip run overrides this with host username, but we need it to stay "catnip"
 # so that our home-manager config works)
 export CATNIP_USERNAME=catnip
+
+#tee "/opt/catnip/bin/claude" >/dev/null <<'EOF'
+##!/usr/bin/env bash
+#set -euo pipefail
+#export NIX_CONFIG="experimental-features = nix-command flakes"
+#export PATH=/nix/var/nix/profiles/default/bin:$PATH
+#REAL_CLAUDE="/nix/path/to/my/bin/claude"
+#
+#if [[ ! -x "$REAL_CLAUDE" ]]; then
+#  echo "ERROR: REAL_CLAUDE not found or not executable: $REAL_CLAUDE" >&2
+#  exit 127
+#fi
+#
+## Keep Catnip interception layer:
+#exec catnip purr "$REAL_CLAUDE" "$@"
+#EOF
+#chmod +x /opt/catnip/bin/claude
 
 # Execute the original catnip entrypoint
 exec /entrypoint.sh "$@"

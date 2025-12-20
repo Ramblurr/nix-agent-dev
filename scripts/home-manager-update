@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Force USER=catnip to match home-manager config
-# (catnip's /etc/profile.d/catnip.sh sets USER from CATNIP_USERNAME which may be wrong)
-export USER=catnip
-export USERNAME=catnip
-
 cd ~/.config/home-manager
 git fetch origin
 git reset --hard origin/main
-# Always use the 'catnip' configuration regardless of current username
-if command -v home-manager &> /dev/null; then
-  home-manager switch --flake .#catnip --impure -b backup
+if command -v home-manager &>/dev/null; then
+    home-manager switch --flake ".#$USER" --impure -b backup
 else
-  nix run .#homeConfigurations.catnip.activationPackage
+    nix run .#homeConfigurations."$USER".activationPackage
 fi

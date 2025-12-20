@@ -1,7 +1,13 @@
 {
   nixConfig = {
-    extra-substituters = [ "https://cache.numtide.com" ];
-    extra-trusted-public-keys = [ "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" ];
+    extra-substituters = [
+      "https://cache.numtide.com"
+      "https://install.determinate.systems"
+    ];
+    extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+      "cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM="
+    ];
   };
   inputs = {
     #nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
@@ -13,6 +19,14 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     fh.url = "https://flakehub.com/f/DeterminateSystems/fh/0.1.*";
+
+    # Using fork with skopeo fix for issue #185 (go mod vendor for skopeo >= 1.15)
+    # TODO: revert to upstream when https://github.com/nlewo/nix2container/issues/185 is fixed
+    nix2container.url = "github:cameronraysmith/nix2container/185-skopeo-fix";
+    #nix2container.url = "github:nlewo/nix2container";
+    nix2container.inputs.nixpkgs.follows = "nixpkgs";
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+    nix.url = "https://flakehub.com/f/DeterminateSystems/nix-src/*";
   };
   outputs =
     { self
@@ -20,18 +34,53 @@
     , home-manager
     , ...
     }@inputs:
+    let
+      # Creates a home-manager configuration for a user.
+      # Returns homeManagerConfiguration args for flakelight.
+      # Note: flakelight passes inputs to the home-manager configuration via extraSpecialArgs.
+      mkUser =
+        { username
+        , system ? "x86_64-linux"
+        , homeDirectory ? (if username == "root" then "/root" else "/home/${username}")
+        ,
+        }:
+        _: {
+          inherit system;
+          modules = [
+            (
+              { ... }:
+              {
+                imports = [ ./config/home.nix ];
+                home.username = username;
+                home.homeDirectory = homeDirectory;
+              }
+            )
+          ];
+        };
+    in
     flakelight ./. (
       { config, ... }:
       {
         inherit inputs;
-        homeConfigurations.root = import ./users/root.nix inputs;
-        homeConfigurations.vscode = import ./users/vscode.nix inputs;
-        homeConfigurations.catnip = import ./users/catnip.nix inputs;
+        homeConfigurations.root = mkUser { username = "root"; };
+        homeConfigurations.vscode = mkUser { username = "vscode"; };
+        homeConfigurations.catnip = mkUser { username = "catnip"; };
+        homeConfigurations.ramblurr = mkUser { username = "ramblurr"; };
 
         withOverlays = [
           self.overlays.default
         ];
         packages = {
+          catnipContainer =
+            pkgs:
+            import ./catnipContainer.nix {
+              inherit self pkgs;
+              lib = pkgs.lib;
+              claude-code = inputs.llm-agents.packages.${pkgs.stdenv.system}.claude-code;
+              determinate-nixd = inputs.determinate.packages.${pkgs.stdenv.system}.default;
+              detsys-nix = inputs.nix.packages.${pkgs.stdenv.system}.default;
+              nix2container = inputs.nix2container.packages.${pkgs.stdenv.system}.nix2container;
+            };
           ramblurr-global-deps-edn =
             { runCommand
             , replaceVars

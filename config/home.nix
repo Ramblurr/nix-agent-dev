@@ -4,15 +4,9 @@
 , lib
 , ...
 }:
-
-let
-  javaVersion = "25";
-  jdk = pkgs."jdk${javaVersion}";
-  clojure = pkgs.clojure.override { inherit jdk; };
-in
 {
 
-  home.stateVersion = "25.05";
+  home.stateVersion = "25.11";
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnfreePredicate = _: true;
   programs.home-manager.enable = true;
@@ -27,6 +21,8 @@ in
     enable = true;
     initExtra = (builtins.readFile ./bashInit.rc);
   };
+  home.file.".bashrc".force = true;
+  home.file.".profile".force = true;
 
   programs.direnv = {
     enable = true;
@@ -36,6 +32,7 @@ in
       whitelist.prefix = [
         "~/"
         "/workspaces"
+        "/workspace"
         "/code"
       ];
     };
@@ -50,15 +47,14 @@ in
   };
 
   home.packages = [
-    jdk
-    clojure
     pkgs.dumbpipe
     pkgs.magic-wormhole-rs
     pkgs.git
     pkgs.jq
     pkgs.ripgrep
+    pkgs.fd
+    pkgs.jless
     pkgs.tmux
-    pkgs.babashka
     (pkgs.writeScriptBin "run-clojure-mcp" ''
       #!/usr/bin/env bash
         set -euo pipefail
@@ -67,46 +63,7 @@ in
         if [ -f "$PORT_FILE" ]; then
         PORT=$(cat ''${PORT_FILE})
         fi
-        ${clojure}/bin/clojure -X:mcp/clojure :port $PORT
-    '')
-
-    (pkgs.writeScriptBin "run-repl" ''
-      #!${pkgs.bash}/bin/bash
-      set -euo pipefail
-      PID_FILE="''${PID_FILE:-.nrepl-pid}"
-      ("${pkgs.babashka}/bin/bb" dev "$@" >/dev/null 2>&1 & echo $! >"$PID_FILE")
-      echo "nREPL started (pid $(cat "$PID_FILE"))"
-    '')
-
-    (pkgs.writeScriptBin "kill-repl" ''
-      #!${pkgs.bash}/bin/bash
-      set -euo pipefail
-      PID_FILE="''${PID_FILE:-.nrepl-pid}"
-      [[ -s "$PID_FILE" ]] || { echo "No PID file: $PID_FILE"; exit 1; }
-      pid="$(cat "$PID_FILE")"
-      if kill -0 "$pid" 2>/dev/null; then
-        kill "$pid" || true
-        for _ in {1..20}; do kill -0 "$pid" 2>/dev/null || { rm -f "$PID_FILE"; echo "Killed $pid"; exit 0; }; sleep 0.1; done
-        echo "Process $pid did not exit"; exit 1
-      else
-        echo "Process $pid not running"; rm -f "$PID_FILE" || true
-      fi
-    '')
-    (pkgs.writeScriptBin "restart-repl" ''
-      #!${pkgs.bash}/bin/bash
-      set -euo pipefail
-      PORT_FILE="''${PORT_FILE:-.nrepl-port}"
-      PID_FILE="''${PID_FILE:-.nrepl-pid}"
-      port=""
-      [[ -s "$PORT_FILE" ]] && port="$(cat "$PORT_FILE")"
-      kill-repl || true
-      if [[ -n "$port" ]]; then
-        ("${pkgs.babashka}/bin/bb" dev --port "$port" >/dev/null 2>&1 & echo $! >"$PID_FILE")
-        echo "nREPL restarted on port $port (pid $(cat "$PID_FILE"))"
-      else
-        ("${pkgs.babashka}/bin/bb" dev >/dev/null 2>&1 & echo $! >"$PID_FILE")
-        echo "nREPL restarted (auto port) (pid $(cat "$PID_FILE"))"
-      fi
+        clojure -X:mcp/clojure :port $PORT
     '')
   ]
   ++ (with inputs.llm-agents.packages.${pkgs.system}; [
