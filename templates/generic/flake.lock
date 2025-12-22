@@ -98,20 +98,22 @@
       "inputs": {
         "determinate": "determinate",
         "fh": "fh",
+        "flake-schemas": "flake-schemas",
         "flakelight": "flakelight",
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",
         "nix": "nix_2",
         "nix2container": "nix2container",
         "nixpkgs": "nixpkgs_7",
+        "spdx-util": "spdx-util",
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1766401449,
-        "narHash": "sha256-rOJUxEH1gLNDngJ/YConUMeToL8sdliG9Zvs987tsZ8=",
+        "lastModified": 1766404925,
+        "narHash": "sha256-EQx21XbccCsBm6L8WoinSquCYh6q0iNoBO1ry2zEc20=",
         "owner": "ramblurr",
         "repo": "nix-devenv",
-        "rev": "abe3e104b38b69f743ab03286ce801770665620f",
+        "rev": "1c3618ff9b9643b675c670b655d64b0c96a13baa",
         "type": "github"
       },
       "original": {
@@ -122,7 +124,7 @@
     },
     "devshell": {
       "inputs": {
-        "nixpkgs": "nixpkgs_8"
+        "nixpkgs": "nixpkgs_10"
       },
       "locked": {
         "lastModified": 1764011051,
@@ -254,6 +256,20 @@
         "url": "https://flakehub.com/f/hercules-ci/flake-parts/0.1"
       }
     },
+    "flake-schemas": {
+      "locked": {
+        "lastModified": 1761577921,
+        "narHash": "sha256-eK3/xbUOrxp9fFlei09XNjqcdiHXxndzrTXp7jFpOk8=",
+        "rev": "47849c7625e223d36766968cc6dc23ba0e135922",
+        "revCount": 107,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/DeterminateSystems/flake-schemas/0.2.0/019a4a84-544d-7c59-b26d-e334e320c932/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/DeterminateSystems/flake-schemas/0.2.0"
+      }
+    },
     "flakelight": {
       "inputs": {
         "nixpkgs": "nixpkgs_4"
@@ -264,6 +280,24 @@
         "owner": "nix-community",
         "repo": "flakelight",
         "rev": "c10ecde0869fbcb4c99e298e86756c207feff432",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "flakelight",
+        "type": "github"
+      }
+    },
+    "flakelight_2": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_8"
+      },
+      "locked": {
+        "lastModified": 1753102454,
+        "narHash": "sha256-BG8VtSW9F24bwfDjF8voxolecogiHKS9WC3EEOakGn0=",
+        "owner": "nix-community",
+        "repo": "flakelight",
+        "rev": "5438c55301ab0811214f918fd16a7f6aaa50b73f",
         "type": "github"
       },
       "original": {
@@ -509,6 +543,36 @@
         "type": "github"
       }
     },
+    "nixpkgs_10": {
+      "locked": {
+        "lastModified": 1762156382,
+        "narHash": "sha256-Yg7Ag7ov5+36jEFC1DaZh/12SEXo6OO3/8rqADRxiqs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "7241bcbb4f099a66aafca120d37c65e8dda32717",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_11": {
+      "locked": {
+        "lastModified": 1766070988,
+        "narHash": "sha256-G/WVghka6c4bAzMhTwT2vjLccg/awmHkdKSd2JrycLc=",
+        "rev": "c6245e83d836d0433170a16eb185cefe0572f8b8",
+        "revCount": 913595,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.1.913595%2Brev-c6245e83d836d0433170a16eb185cefe0572f8b8/019b38ed-77a4-7329-b290-49e4d1914b8c/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/NixOS/nixpkgs/0.1"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1764611609,
@@ -602,28 +666,28 @@
     },
     "nixpkgs_8": {
       "locked": {
-        "lastModified": 1762156382,
-        "narHash": "sha256-Yg7Ag7ov5+36jEFC1DaZh/12SEXo6OO3/8rqADRxiqs=",
+        "lastModified": 1752950548,
+        "narHash": "sha256-NS6BLD0lxOrnCiEOcvQCDVPXafX1/ek1dfJHX1nUIzc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7241bcbb4f099a66aafca120d37c65e8dda32717",
+        "rev": "c87b95e25065c028d31a94f06a62927d18763fdf",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixpkgs-unstable",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs_9": {
       "locked": {
-        "lastModified": 1766070988,
-        "narHash": "sha256-G/WVghka6c4bAzMhTwT2vjLccg/awmHkdKSd2JrycLc=",
-        "rev": "c6245e83d836d0433170a16eb185cefe0572f8b8",
-        "revCount": 913595,
+        "lastModified": 1753250450,
+        "narHash": "sha256-i+CQV2rPmP8wHxj0aq4siYyohHwVlsh40kV89f3nw1s=",
+        "rev": "fc02ee70efb805d3b2865908a13ddd4474557ecf",
+        "revCount": 833752,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.1.913595%2Brev-c6245e83d836d0433170a16eb185cefe0572f8b8/019b38ed-77a4-7329-b290-49e4d1914b8c/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.1.833752%2Brev-fc02ee70efb805d3b2865908a13ddd4474557ecf/01983af5-b954-7f68-9629-7c5f8d27565f/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -634,7 +698,7 @@
       "inputs": {
         "devenv": "devenv",
         "devshell": "devshell",
-        "nixpkgs": "nixpkgs_9"
+        "nixpkgs": "nixpkgs_11"
       }
     },
     "rust-analyzer-src": {
@@ -652,6 +716,24 @@
         "ref": "nightly",
         "repo": "rust-analyzer",
         "type": "github"
+      }
+    },
+    "spdx-util": {
+      "inputs": {
+        "flakelight": "flakelight_2",
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "lastModified": 1753356424,
+        "narHash": "sha256-O+GRyi87RL3f43izTgmujJlgFnNd6l4D8a2rmxQr2W0=",
+        "rev": "8b0080dfa30841cbafc63e0a35744effc9d3f798",
+        "revCount": 8,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/ramblurr/spdx-util/0.1.8%2Brev-8b0080dfa30841cbafc63e0a35744effc9d3f798/01983c31-2cde-7a09-b3a2-37aa57a8b8ae/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/ramblurr/spdx-util/0.1.4"
       }
     },
     "systems": {
