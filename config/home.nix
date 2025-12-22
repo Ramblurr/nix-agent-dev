@@ -40,9 +40,9 @@
 
   xdg.configFile."clojure/deps.edn" = {
     source = "${
-      (pkgs.ramblurr-global-deps-edn.override {
+      pkgs.callPackage ../pkgs/deps-edn.nix {
         cacheDirectory = config.xdg.cacheHome;
-      })
+      }
     }/share/clojure/deps.edn";
   };
 

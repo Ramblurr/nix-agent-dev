@@ -29,20 +29,21 @@
     nix.url = "https://flakehub.com/f/DeterminateSystems/nix-src/*";
   };
   outputs =
-    { self
-    , flakelight
-    , home-manager
-    , ...
+    {
+      self,
+      flakelight,
+      home-manager,
+      ...
     }@inputs:
     let
       # Creates a home-manager configuration for a user.
       # Returns homeManagerConfiguration args for flakelight.
       # Note: flakelight passes inputs to the home-manager configuration via extraSpecialArgs.
       mkUser =
-        { username
-        , system ? "x86_64-linux"
-        , homeDirectory ? (if username == "root" then "/root" else "/home/${username}")
-        ,
+        {
+          username,
+          system ? "x86_64-linux",
+          homeDirectory ? (if username == "root" then "/root" else "/home/${username}"),
         }:
         _: {
           inherit system;
@@ -71,43 +72,9 @@
           self.overlays.default
         ];
         packages = {
-          catnipContainer =
-            pkgs:
-            import ./catnipContainer.nix {
-              inherit self pkgs;
-              lib = pkgs.lib;
-              claude-code = inputs.llm-agents.packages.${pkgs.stdenv.system}.claude-code;
-              determinate-nixd = inputs.determinate.packages.${pkgs.stdenv.system}.default;
-              detsys-nix = inputs.nix.packages.${pkgs.stdenv.system}.default;
-              nix2container = inputs.nix2container.packages.${pkgs.stdenv.system}.nix2container;
-            };
-          brepl =
-            pkgs:
-            pkgs.callPackage
-              (
-                pkgs.fetchFromGitHub
-                  {
-                    owner = "licht1stein";
-                    repo = "brepl";
-                    rev = "v2.3.1";
-                    hash = "sha256-zNzQ2JTYWwaWJ5inJa2B8WHu3CFM8CzqkWuB/Ekr7lw=";
-                  }
-                + "/package.nix"
-              )
-              { };
-          ramblurr-global-deps-edn =
-            { runCommand
-            , replaceVars
-            , cacheDirectory ? "~/.cache/clojure"
-            , ...
-            }:
-            let
-              depsEdn = replaceVars ./config/deps.edn { inherit cacheDirectory; };
-            in
-            runCommand "ramblurr-global-deps-edn" { passthru = { inherit cacheDirectory; }; } ''
-              mkdir -p $out/share/clojure
-              cp ${depsEdn} $out/share/clojure/deps.edn
-            '';
+          catnipContainer = pkgs: (import ./pkgs/catnip-container.nix) { inherit self inputs pkgs; };
+          brepl = pkgs: pkgs.callPackage (import ./pkgs/brepl.nix) { };
+          ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
         };
         flakelight.builtinFormatters = false;
         formatters = pkgs: {
