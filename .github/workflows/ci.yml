@@ -56,7 +56,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         id: flakehub-push
         with:
-          name: ramblurr/nix-agent-dev
+          name: ramblurr/nix-devenv
           rolling: true
           visibility: public
           include-output-paths: true
