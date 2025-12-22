@@ -76,8 +76,14 @@
           clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
         };
-        devShells = {
-          clojure = import ./devshells/clojure.nix;
+        outputs = {
+          capsules =
+            let
+              withCategory = category: attrset: attrset // { inherit category; };
+            in
+            {
+              clojure = import ./devshells/clojure.nix { inherit withCategory; };
+            };
         };
         flakelight.builtinFormatters = false;
         formatters = pkgs: {
