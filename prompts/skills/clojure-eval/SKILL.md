@@ -1,14 +1,17 @@
 ---
 name: clojure-eval
-description: Evaluate Clojure code via nREPL using clj-nrepl-eval. Use this when you need to test code, check if edited files compile, verify function behavior, or interact with a running REPL session.
+description: Use this skill BEFORE using writing any Clojure code. It teaches how to use the Clojure REPL (via brepl) so you can test code, check if edited files compile, verify function behavior, or interact with a running REPL session.
 ---
 
 # Clojure REPL Evaluation
 
+**You MUST load this skill before using brepl.** Do NOT attempt to use brepl without loading this skill first, or you will use incorrect syntax.
+
+
 ## When to Use This Skill
 
 Use this skill when you need to:
-- **Verify that edited Clojure files compile and load correctly**
+- Verify that edited Clojure files compile and load correctly
 - Test function behavior interactively
 - Check the current state of the REPL
 - Debug code by evaluating expressions
@@ -17,157 +20,204 @@ Use this skill when you need to:
 
 ## How It Works
 
-The `clj-nrepl-eval` command evaluates Clojure code against an nREPL server. **Session state persists between evaluations**, so you can require a namespace in one evaluation and use it in subsequent calls. Each host:port combination maintains its own session file.
+`brepl` is a REPL client for evaluating Clojure expressions. This skill teaches the heredoc pattern for reliable code evaluation.
 
-## Instructions
+The `brepl` command evaluates Clojure code against an nREPL server. It auto-detects the port from the `.nrepl-port` file in your project directory, so explicit port configuration is usually unnecessary.
 
-### 0. Discover and select nREPL server
+## The Heredoc Pattern
 
-First, discover what nREPL servers are running in the current directory:
+Always use the heredoc pattern for brepl evaluation. This eliminates quoting issues, works for all cases, and provides a consistent approach.
+
+### Syntax
 
 ```bash
-clj-nrepl-eval --discover-ports
-```
-
-This will show all nREPL servers (Clojure, Babashka, shadow-cljs, etc.) running in the current project directory.
-
-**Then use the AskUserQuestion tool:**
-
-- **If ports are discovered:** Prompt user to select which nREPL port to use:
-  - **question:** "Which nREPL port would you like to use?"
-  - **header:** "nREPL Port"
-  - **options:** Present each discovered port as an option with:
-    - **label:** The port number 
-    - **description:** The server type and status (e.g., "Clojure nREPL server in current directory")
-  - Include up to 4 discovered ports as options
-  - The user can select "Other" to enter a custom port number
-
-- **If no ports are discovered:** Prompt user how to start an nREPL server:
-  - **question:** "No nREPL servers found. How would you like to start one?"
-  - **header:** "Start nREPL"
-  - **options:**
-    - **label:** "deps.edn alias", **description:** "Find and use an nREPL alias in deps.edn"
-    - **label:** "Leiningen", **description:** "Start nREPL using 'lein repl'"
-  - The user can select "Other" for alternative methods or if they already have a server running on a specific port
-
-IMPORTANT: IF you start a REPL do not supply a port let the nREPL start and return the port that it was started on.
-
-### 1. Evaluate Clojure Code
-
-> Evaluation automatically connects to the given port
-
-Use the `-p` flag to specify the port and pass your Clojure code.
-
-**Recommended: Pass code as a command-line argument:**
-```bash
-clj-nrepl-eval -p <PORT> "(+ 1 2 3)"
-```
-
-**For multiple expressions (single line):**
-```bash
-clj-nrepl-eval -p <PORT> "(def x 10) (+ x 20)"
-```
-
-**Alternative: Using heredoc (may require permission approval for multiline commands):**
-```bash
-clj-nrepl-eval -p <PORT> <<'EOF'
-(def x 10)
-(+ x 20)
+brepl "$(cat <<'EOF'
+(your clojure code here)
 EOF
+)"
 ```
 
-**Alternative: Via stdin pipe:**
+Note: Use `<<'EOF'` (with single quotes) to prevent shell variable expansion.
+
+### Why Use Heredoc
+
+- No quoting issues: Everything between `<<'EOF'` and `EOF` is literal
+- Consistent pattern: One approach for all evaluations
+- Multi-line friendly: Natural formatting for readable code
+- Easy to extend: Add more forms without changing syntax
+- Safe: No shell interpretation of Clojure code
+
+## Examples
+
+### Simple Expression (alternative for trivial cases)
+
 ```bash
-echo "(+ 1 2 3)" | clj-nrepl-eval -p <PORT>
+brepl '(+ 1 2 3)'
 ```
 
-### 2. Display nREPL Sessions
+### Multi-line Expressions
 
-**Discover all nREPL servers in current directory:**
 ```bash
-clj-nrepl-eval --discover-ports
-```
-Shows all running nREPL servers in the current project directory, including their type (clj/bb/basilisp) and whether they match the current working directory.
-
-**Check previously connected sessions:**
-```bash
-clj-nrepl-eval --connected-ports
-```
-Shows only connections you have made before (appears after first evaluation on a port).
-
-### 3. Common Patterns
-
-**Require a namespace (always use :reload to pick up changes):**
-```bash
-clj-nrepl-eval -p <PORT> "(require '[my.namespace :as ns] :reload)"
-```
-
-**Test a function after requiring:**
-```bash
-clj-nrepl-eval -p <PORT> "(ns/my-function arg1 arg2)"
-```
-
-**Check if a file compiles:**
-```bash
-clj-nrepl-eval -p <PORT> "(require 'my.namespace :reload)"
-```
-
-**Multiple expressions:**
-```bash
-clj-nrepl-eval -p <PORT> "(def x 10) (* x 2) (+ x 5)"
-```
-
-**Complex multiline code (using heredoc):**
-```bash
-clj-nrepl-eval -p <PORT> <<'EOF'
-(def x 10)
-(* x 2)
-(+ x 5)
+brepl "$(cat <<'EOF'
+(require '[clojure.string :as str])
+(str/join ", " ["a" "b" "c"])
 EOF
-```
-*Note: Heredoc syntax may require permission approval.*
-
-**With custom timeout (in milliseconds):**
-```bash
-clj-nrepl-eval -p <PORT> --timeout 5000 "(long-running-fn)"
+)"
 ```
 
-**Reset the session (clears all state):**
+### Code with Quotes
+
 ```bash
-clj-nrepl-eval -p <PORT> --reset-session
-clj-nrepl-eval -p <PORT> --reset-session "(def x 1)"
+brepl "$(cat <<'EOF'
+(println "String with 'single' and \"double\" quotes")
+EOF
+)"
+```
+
+### Require a Namespace (always use :reload to pick up changes)
+
+```bash
+brepl "$(cat <<'EOF'
+(require '[my.namespace :as ns] :reload)
+EOF
+)"
+```
+
+### Full Namespace Reload (including dependencies)
+
+```bash
+brepl "$(cat <<'EOF'
+(require '[myapp.core] :reload-all)
+EOF
+)"
+```
+
+### Namespace Reloading and Testing
+
+```bash
+brepl "$(cat <<'EOF'
+(require '[myapp.core] :reload)
+(myapp.core/some-function "test" 123)
+EOF
+)"
+```
+
+### Complex Data Structures
+
+```bash
+brepl "$(cat <<'EOF'
+(def config
+  {:database {:host "localhost"
+              :port 5432}
+   :api {:key "secret-key"}})
+(println (:database config))
+EOF
+)"
+```
+
+### Running Tests
+
+```bash
+brepl "$(cat <<'EOF'
+(require '[clojure.test :refer [run-tests]])
+(require '[myapp.core-test] :reload)
+(run-tests 'myapp.core-test)
+EOF
+)"
+```
+
+### Documentation Lookup
+
+```bash
+brepl "$(cat <<'EOF'
+(require '[clojure.repl :refer [doc source]])
+(doc map)
+(source filter)
+EOF
+)"
+```
+
+### Error Inspection
+
+```bash
+brepl "$(cat <<'EOF'
+*e
+(require '[clojure.repl :refer [pst]])
+(pst)
+EOF
+)"
+```
+
+### Loading Files
+
+To load an entire file into the REPL:
+
+```bash
+brepl -f src/myapp/core.clj
 ```
 
 ## Available Options
 
-- `-p, --port PORT` - nREPL port (required)
-- `-H, --host HOST` - nREPL host (default: 127.0.0.1)
-- `-t, --timeout MILLISECONDS` - Timeout (default: 120000 = 2 minutes)
-- `-r, --reset-session` - Reset the persistent nREPL session
-- `-c, --connected-ports` - List previously connected nREPL sessions
-- `-d, --discover-ports` - Discover nREPL servers in current directory
-- `-h, --help` - Show help message
+- `-e, --e <expr>` - Expression to evaluate
+- `-f, --f <file>` - File to load and execute
+- `-p, --p <port>` - nREPL port (auto-detects from .nrepl-port if not specified)
+- `-h, --h <host>` - nREPL host (default: localhost or BREPL_HOST)
+- `--verbose` - Show raw nREPL messages instead of parsed output
+- `--help` - Show help message
+
+## Port Configuration
+
+The port is resolved in this order:
+
+1. Command line: `-p 7888`
+2. Auto-detect: `.nrepl-port` file in project directory
+3. Environment: `BREPL_PORT=7888`
+
+```bash
+# Auto-detect from .nrepl-port (most common)
+brepl -e '(+ 1 2)'
+
+# Explicit port
+brepl -p 7888 -e '(+ 1 2)'
+
+# Using environment variable
+BREPL_PORT=7888 brepl -e '(+ 1 2)'
+```
+
+## Critical Rules
+
+1. Always use heredoc: Use the heredoc pattern for all brepl evaluations
+2. Quote the delimiter: Always use `<<'EOF'` not `<<EOF` to prevent shell expansion
+3. No escaping needed: Inside heredoc, write Clojure code naturally
+4. Multi-step operations: Combine multiple forms in one heredoc block
+5. Write correct Clojure: Ensure proper bracket balancing and valid syntax
 
 ## Important Notes
 
-- **Prefer command-line arguments:** Pass code as quoted strings: `clj-nrepl-eval -p <PORT> "(+ 1 2 3)"` - works with existing permissions
-- **Heredoc for complex code:** Use heredoc (`<<'EOF' ... EOF`) for truly multiline code, but note it may require permission approval
-- **Sessions persist:** State (vars, namespaces, loaded libraries) persists across invocations until the nREPL server restarts or `--reset-session` is used
-- **Automatic delimiter repair:** The tool automatically repairs missing or mismatched parentheses
-- **Always use :reload:** When requiring namespaces, use `:reload` to pick up recent changes
-- **Default timeout:** 2 minutes (120000ms) - increase for long-running operations
-- **Input precedence:** Command-line arguments take precedence over stdin
+- Prefer heredoc pattern: Use heredoc for all but the simplest expressions to avoid quoting issues
+- Always use :reload: When requiring namespaces, use `:reload` to pick up recent changes
+- Auto-detection handles ports: No explicit port discovery needed in most cases
+- The `-e` flag is optional: `brepl '(+ 1 2)'` works the same as `brepl -e '(+ 1 2)'`
 
 ## Typical Workflow
 
-1. Discover nREPL servers: `clj-nrepl-eval --discover-ports`
-2. Use **AskUserQuestion** tool to prompt user to select a port
-3. Require namespace:
+1. Ensure nREPL is running (creates .nrepl-port file)
+2. Require namespace:
    ```bash
-   clj-nrepl-eval -p <PORT> "(require '[my.ns :as ns] :reload)"
+   brepl "$(cat <<'EOF'
+   (require '[my.ns :as ns] :reload)
+   EOF
+   )"
    ```
-4. Test function:
+3. Test function:
    ```bash
-   clj-nrepl-eval -p <PORT> "(ns/my-fn ...)"
+   brepl "$(cat <<'EOF'
+   (ns/my-fn ...)
+   EOF
+   )"
    ```
-5. Iterate: Make changes, re-require with `:reload`, test again
+4. Iterate: Make changes, re-require with `:reload`, test again
+
+## Resources
+
+brepl documentation: https://github.com/licht1stein/brepl (check extra/)
