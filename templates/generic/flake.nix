@@ -1,0 +1,30 @@
+{
+  description = "dev env";
+  inputs = {
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
+    devshell.url = "github:numtide/devshell";
+    devenv.url = "github:ramblurr/nix-devenv";
+  };
+  outputs =
+    {
+      self,
+      devenv,
+      devshell,
+      ...
+    }:
+    devenv.lib.mkFlake ./. {
+      withOverlays = [
+        devshell.overlays.default
+        devenv.overlays.default
+      ];
+      devShell =
+        pkgs:
+        pkgs.devshell.mkShell {
+          imports = [
+          ];
+          # https://numtide.github.io/devshell
+          commands = [
+          ];
+        };
+    };
+}

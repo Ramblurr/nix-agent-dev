@@ -12,6 +12,7 @@
   inputs = {
     #nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
     nixpkgs.url = "git+https://github.com/ramblurr/nixpkgs?shallow=1&ref=consolidated";
+    spdx-util.url = "https://flakehub.com/f/ramblurr/spdx-util/0.1.4";
     flakelight.url = "github:nix-community/flakelight";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "flakelight/nixpkgs";
@@ -34,6 +35,7 @@
       flakelight,
       treefmt-nix,
       home-manager,
+      spdx-util,
       ...
     }@inputs:
     let
@@ -97,11 +99,9 @@
           catnipContainer = pkgs: (import ./pkgs/catnip-container.nix) { inherit self inputs pkgs; };
           clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
+          spdx = pkgs: spdx-util.packages.${pkgs.system}.default;
         };
-        templates.clojure = {
-          path = ./templates/clojure;
-          description = ''nix flake new my-project -t "github:ramblurr/nix-devenv#clojure"'';
-        };
+        templates = import ./templates;
         outputs = {
           capsules =
             let
@@ -112,10 +112,6 @@
             };
         };
         flakelight.builtinFormatters = false;
-        formatters = pkgs: {
-          "*.nix" = "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt";
-        };
-
       }
     );
 }

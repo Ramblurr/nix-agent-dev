@@ -2,5 +2,15 @@
   "extends": [
     "config:recommended",
     "github>ramblurr/renovate-preset-deps-edn-gitlibs"
+  ],
+  "schedule": "on sunday",
+  "separateMajorMinor": false,
+  "labels": ["renovate"],
+  "groupName": "uncategorized",
+  "packageRules": [
+    {
+      "matchDatasources": ["clojure"],
+      "groupName": "clojure deps"
+    }
   ]
 }
