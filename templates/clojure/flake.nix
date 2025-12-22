@@ -3,7 +3,7 @@
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
     devshell.url = "github:numtide/devshell";
-    devenv.url = "github:ramblurr/nix-devenv";
+    devenv.url = "https://flakehub.com/f/ramblurr/nix-devenv/*";
   };
   outputs =
     {

@@ -109,17 +109,16 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1766405834,
-        "narHash": "sha256-A8PjuXDu3zYnlG52pDAi+R1UVHAIeaqtKJr75eFJess=",
-        "owner": "ramblurr",
-        "repo": "nix-devenv",
-        "rev": "4e595a086a10714fdc6c816f9a2f320a0aa869e2",
-        "type": "github"
+        "lastModified": 1766406783,
+        "narHash": "sha256-bdImpF+X0rKZBYzOrSQUERy/BgS1HmA/qGk7ZjVrdfw=",
+        "rev": "034577dbc02938d6fadb772bb37cef84713d8a37",
+        "revCount": 77,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/ramblurr/nix-devenv/0.1.77%2Brev-034577dbc02938d6fadb772bb37cef84713d8a37/019b4612-7abc-7957-866d-91e13c0c9694/source.tar.gz"
       },
       "original": {
-        "owner": "ramblurr",
-        "repo": "nix-devenv",
-        "type": "github"
+        "type": "tarball",
+        "url": "https://flakehub.com/f/ramblurr/nix-devenv/%2A"
       }
     },
     "devshell": {

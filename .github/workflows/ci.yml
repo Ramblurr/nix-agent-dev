@@ -38,22 +38,8 @@ jobs:
       - run: nix build --accept-flake-config .#devShells.x86_64-linux.default
         working-directory: templates/generic
       - run: nix build --accept-flake-config .#packages.x86_64-linux.catnipContainer.copyToDockerDaemon
-
-  publish-flakehub:
-    name: Publish to Flakehub
-    needs: build-nix
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'no-deploy')
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@main
-      - uses: DeterminateSystems/flakehub-cache-action@main
-      - uses: DeterminateSystems/flake-checker-action@main
       - uses: DeterminateSystems/flakehub-push@main
-        if: ${{ github.event_name != 'pull_request' }}
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         id: flakehub-push
         with:
           name: ramblurr/nix-devenv
@@ -72,9 +58,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'no-deploy')
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@main
-      - uses: DeterminateSystems/flakehub-cache-action@main
-      - uses: DeterminateSystems/flake-checker-action@main
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/flakehub-cache-action@v3
       - run: nix run --accept-flake-config --keep-going '.#packages.x86_64-linux.catnipContainer.copyToDockerDaemon'
 
       - name: Log in to Container Registry
