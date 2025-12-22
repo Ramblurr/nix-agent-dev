@@ -29,21 +29,20 @@
     nix.url = "https://flakehub.com/f/DeterminateSystems/nix-src/*";
   };
   outputs =
-    {
-      self,
-      flakelight,
-      home-manager,
-      ...
+    { self
+    , flakelight
+    , home-manager
+    , ...
     }@inputs:
     let
       # Creates a home-manager configuration for a user.
       # Returns homeManagerConfiguration args for flakelight.
       # Note: flakelight passes inputs to the home-manager configuration via extraSpecialArgs.
       mkUser =
-        {
-          username,
-          system ? "x86_64-linux",
-          homeDirectory ? (if username == "root" then "/root" else "/home/${username}"),
+        { username
+        , system ? "x86_64-linux"
+        , homeDirectory ? (if username == "root" then "/root" else "/home/${username}")
+        ,
         }:
         _: {
           inherit system;
@@ -77,10 +76,14 @@
           clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
         };
+        devShells = {
+          clojure = import ./devshells/clojure.nix;
+        };
         flakelight.builtinFormatters = false;
         formatters = pkgs: {
           "*.nix" = "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt";
         };
+
       }
     );
 }
