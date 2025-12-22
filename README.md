@@ -1,8 +1,67 @@
-# nix-agent-dev
+# nix-devenv
 
-This project contains nix config for dev environments for coding agents.
+Reusable Nix Flake [devshells] for my frequently used toolchains, and container/microvm environments sandboxed coding agents.
 
-I use nix flakes extensively (nearly exclusively) for defining my development environments. 
+This flake also exposes it self as [a flakelight module][flakelight]. It extends your flakelight project to replace the builtin formatter with one powered by treefmt-nix.
+
+## Devshell Capsules
+
+I ship my devshells as "capsules" which are snippets of [numtide/devshell][devshell] configuration.
+
+Available capsules:
+
+| Capsule   |   |
+|-----------|---|
+| `clojure` |   |
+
+## Example Usage
+
+Here is a minimal flake using the flakelight functionality and my clojure devshell capsule.
+
+``` nix
+{
+  description = "my dev env";
+  inputs = {
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
+    devshell.url = "github:numtide/devshell";
+    devenv.url = "github:ramblurr/nix-devenv";
+    devenv.nixpkgs.follows = "nixpkgs";
+  };
+  outputs =
+    {
+      self,
+      flakelight,
+      devenv,
+      devshell,
+      ...
+    }:
+    devenv.lib.mkFlake ./. {
+      # inside here we are flakelight
+      # refer to https://github.com/nix-community/flakelight/blob/master/API_GUIDE.md
+      # for all attrs and functions
+      withOverlays = [
+        devshell.overlays.default
+        devenv.overlays.default
+      ];
+      devShell =
+        pkgs:
+        pkgs.devshell.mkShell {
+          # https://numtide.github.io/devshell
+          imports = [
+            devenv.capsules.clojure
+          ];
+          commands = [
+            { package = pkgs.cowsay; }
+          ];
+          packages = [ ];
+        };
+    };
+}
+```
+
+## Sandboxed Agent Environments
+
+This repo also contains nix config for dev environments for coding agents.
 
 Most of the remote coding agent systems (codex, claude web, terragon) do not
 allow you to bring your own container image.  So this repo serves as a bunch of
@@ -17,7 +76,7 @@ It supports multiple remote agent systems:
 - .devcontainer/Dockerfile - works with [gitpod/Ona](https://ona.com)
 - Dockerfile.catnip for [catnip](https://github.com/wandb/catnip)
 
-## Build
+### Build
 
 ```bash
 # enter devshell
@@ -31,6 +90,5 @@ docker build -t nix-agent-dev:catnip -f Dockerfile.catnip .
 ```
 
 
-## Inspiration
-
-https://github.com/kasuboski/dotfiles/blob/c7f468d3013d5bd372a5c3a9610b63e3eec469dd/devcontainer.nix
+[devshell]: https://github.com/numtide/devshell
+[flakelight]: https://github.com/nix-community/flakelight

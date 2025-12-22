@@ -13,8 +13,8 @@
     #nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
     nixpkgs.url = "git+https://github.com/ramblurr/nixpkgs?shallow=1&ref=consolidated";
     flakelight.url = "github:nix-community/flakelight";
-    flakelight.inputs.nixpkgs.follows = "nixpkgs";
     treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "flakelight/nixpkgs";
     llm-agents.url = "github:numtide/llm-agents.nix";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -29,20 +29,22 @@
     nix.url = "https://flakehub.com/f/DeterminateSystems/nix-src/*";
   };
   outputs =
-    { self
-    , flakelight
-    , home-manager
-    , ...
+    {
+      self,
+      flakelight,
+      treefmt-nix,
+      home-manager,
+      ...
     }@inputs:
     let
       # Creates a home-manager configuration for a user.
       # Returns homeManagerConfiguration args for flakelight.
       # Note: flakelight passes inputs to the home-manager configuration via extraSpecialArgs.
       mkUser =
-        { username
-        , system ? "x86_64-linux"
-        , homeDirectory ? (if username == "root" then "/root" else "/home/${username}")
-        ,
+        {
+          username,
+          system ? "x86_64-linux",
+          homeDirectory ? (if username == "root" then "/root" else "/home/${username}"),
         }:
         _: {
           inherit system;
@@ -62,6 +64,26 @@
       { config, ... }:
       {
         inherit inputs;
+        imports = [
+          flakelight.flakelightModules.extendFlakelight
+          ./flakelight-treefmt.nix
+        ];
+        flakelightModule =
+          { lib, ... }:
+          {
+            imports = [ ./flakelight-treefmt.nix ];
+            inputs.treefmt-nix = lib.mkDefault treefmt-nix;
+          };
+        treefmtConfig = {
+          programs = {
+            nixfmt.enable = true;
+            mdformat.plugins =
+              ps: with ps; [
+                mdformat-gfm
+                mdformat-gfm-alerts
+              ];
+          };
+        };
         homeConfigurations.root = mkUser { username = "root"; };
         homeConfigurations.vscode = mkUser { username = "vscode"; };
         homeConfigurations.catnip = mkUser { username = "catnip"; };
