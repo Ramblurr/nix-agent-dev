@@ -16,7 +16,11 @@ Available capsules:
 
 ## Example Usage
 
-Here is a minimal flake using the flakelight functionality and my clojure devshell capsule.
+Create a new repo from scratch:
+
+`nix flake new my-project -t "github:ramblurr/nix-devenv#clojure"`
+
+Or here is a minimal flake using the flakelight functionality and my clojure devshell capsule.
 
 ``` nix
 {

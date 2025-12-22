@@ -98,6 +98,10 @@
           clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
         };
+        templates.clojure = {
+          path = ./templates/clojure;
+          description = ''nix flake new my-project -t "github:ramblurr/nix-devenv#clojure"'';
+        };
         outputs = {
           capsules =
             let
