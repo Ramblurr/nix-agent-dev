@@ -7,9 +7,9 @@ on:
     branches: [main]
     paths:
       - ".devcontainer/**"
-      - "users/**"
-      - "config/**"
-      - "flake.nix"
+      - ".github/**"
+      - "templates/**"
+      - "**/*.nix"
   workflow_dispatch:
 
 env:
@@ -25,9 +25,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@main
-      - uses: DeterminateSystems/flakehub-cache-action@main
-      - uses: DeterminateSystems/flake-checker-action@main
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/flakehub-cache-action@v3
+      - uses: DeterminateSystems/flake-checker-action@v12
       - run: nix flake check --accept-flake-config --all-systems
       - run: nix build --accept-flake-config .#devShells.x86_64-linux.default
       - run: nix build --accept-flake-config .#homeConfigurations.catnip.activationPackage
