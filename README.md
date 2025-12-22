@@ -10,17 +10,12 @@ I ship my devshells as "capsules" which are snippets of [numtide/devshell][devsh
 
 Available capsules:
 
-| Capsule   |   |
-|-----------|---|
-| `clojure` |   |
+| Capsule   |
+|-----------|
+| `clojure` |
 
-## Example Usage
-
-Create a new repo from scratch:
-
-`nix flake new my-project -t "github:ramblurr/nix-devenv#clojure"`
-
-Or here is a minimal flake using the flakelight functionality and my clojure devshell capsule.
+<details>
+<summary><b>Here is a minimal flake using the flakelight functionality and my clojure devshell capsule.</b></summary>
 
 ``` nix
 {
@@ -62,6 +57,24 @@ Or here is a minimal flake using the flakelight functionality and my clojure dev
     };
 }
 ```
+</details>
+
+## Templates
+
+Use `nix flake new` to create new projects.
+
+| Template  | Description                                                                      |
+|-----------|----------------------------------------------------------------------------------|
+| `clojure` | A minimal clojure application template with a deps.edn, bb.edn and kaocha setup. |
+| `generic` | A minimal generic nix flake template.                                            |
+
+Example:
+
+```bash
+nix flake new my-project -t "github:ramblurr/nix-devenv#clojure"
+```
+
+
 
 ## Sandboxed Agent Environments
 

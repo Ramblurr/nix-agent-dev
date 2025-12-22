@@ -21,6 +21,7 @@
         pkgs:
         pkgs.devshell.mkShell {
           imports = [
+            devenv.capsules.base
             devenv.capsules.clojure
           ];
           # https://numtide.github.io/devshell

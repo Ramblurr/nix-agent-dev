@@ -21,6 +21,7 @@
         pkgs:
         pkgs.devshell.mkShell {
           imports = [
+            devenv.capsules.base
           ];
           # https://numtide.github.io/devshell
           commands = [

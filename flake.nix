@@ -20,7 +20,6 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     fh.url = "https://flakehub.com/f/DeterminateSystems/fh/0.1.*";
-
     # Using fork with skopeo fix for issue #185 (go mod vendor for skopeo >= 1.15)
     # TODO: revert to upstream when https://github.com/nlewo/nix2container/issues/185 is fixed
     nix2container.url = "github:cameronraysmith/nix2container/185-skopeo-fix";
@@ -28,6 +27,7 @@
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     nix.url = "https://flakehub.com/f/DeterminateSystems/nix-src/*";
+    flake-schemas.url = "https://flakehub.com/f/DeterminateSystems/flake-schemas/0.2.0";
   };
   outputs =
     {
@@ -38,30 +38,6 @@
       spdx-util,
       ...
     }@inputs:
-    let
-      # Creates a home-manager configuration for a user.
-      # Returns homeManagerConfiguration args for flakelight.
-      # Note: flakelight passes inputs to the home-manager configuration via extraSpecialArgs.
-      mkUser =
-        {
-          username,
-          system ? "x86_64-linux",
-          homeDirectory ? (if username == "root" then "/root" else "/home/${username}"),
-        }:
-        _: {
-          inherit system;
-          modules = [
-            (
-              { ... }:
-              {
-                imports = [ ./config/home.nix ];
-                home.username = username;
-                home.homeDirectory = homeDirectory;
-              }
-            )
-          ];
-        };
-    in
     flakelight ./. (
       { config, ... }:
       {
@@ -86,14 +62,10 @@
               ];
           };
         };
-        homeConfigurations.root = mkUser { username = "root"; };
-        homeConfigurations.vscode = mkUser { username = "vscode"; };
-        homeConfigurations.catnip = mkUser { username = "catnip"; };
-        homeConfigurations.ramblurr = mkUser { username = "ramblurr"; };
-
         withOverlays = [
           self.overlays.default
         ];
+        homeConfigurations = import ./home-modules/default.nix;
         packages = {
           brepl = pkgs: pkgs.callPackage (import ./pkgs/brepl.nix) { };
           catnipContainer = pkgs: (import ./pkgs/catnip-container.nix) { inherit self inputs pkgs; };
@@ -103,13 +75,16 @@
         };
         templates = import ./templates;
         outputs = {
-          capsules =
-            let
-              withCategory = category: attrset: attrset // { inherit category; };
-            in
-            {
-              clojure = import ./devshells/clojure.nix { inherit withCategory; };
+          capsules = import ./devshells;
+          schemas = inputs.flake-schemas.schemas // {
+            capsules = {
+              version = 1;
+              doc = ''
+                The `capsules` flake output contains common devshell modules specified via numtide/devshell.
+              '';
+              inventory = inputs.flake-schemas.lib.derivationsInventory "Devshell Capsules" false;
             };
+          };
         };
         flakelight.builtinFormatters = false;
       }

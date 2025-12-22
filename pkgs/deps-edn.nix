@@ -5,7 +5,7 @@
   ...
 }:
 let
-  depsEdn = replaceVars ../config/deps.edn { inherit cacheDirectory; };
+  depsEdn = replaceVars ../home-modules/deps.edn { inherit cacheDirectory; };
 in
 runCommand "ramblurr-global-deps-edn" { passthru = { inherit cacheDirectory; }; } ''
   mkdir -p $out/share/clojure
