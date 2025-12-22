@@ -81,6 +81,20 @@
               detsys-nix = inputs.nix.packages.${pkgs.stdenv.system}.default;
               nix2container = inputs.nix2container.packages.${pkgs.stdenv.system}.nix2container;
             };
+          brepl =
+            pkgs:
+            pkgs.callPackage
+              (
+                pkgs.fetchFromGitHub
+                  {
+                    owner = "licht1stein";
+                    repo = "brepl";
+                    rev = "v2.3.1";
+                    hash = "sha256-zNzQ2JTYWwaWJ5inJa2B8WHu3CFM8CzqkWuB/Ekr7lw=";
+                  }
+                + "/package.nix"
+              )
+              { };
           ramblurr-global-deps-edn =
             { runCommand
             , replaceVars
