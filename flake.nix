@@ -76,15 +76,16 @@
         templates = import ./templates;
         outputs = {
           capsules = import ./capsules;
-          schemas = inputs.flake-schemas.schemas // {
-            capsules = {
-              version = 1;
-              doc = ''
-                The `capsules` flake output contains common devshell modules specified via numtide/devshell.
-              '';
-              inventory = inputs.flake-schemas.lib.derivationsInventory "Devshell Capsules" false;
-            };
-          };
+          # disable schemas for now, this breaks flakehub
+          #schemas = inputs.flake-schemas.schemas // {
+          #  capsules = {
+          #    version = 1;
+          #    doc = ''
+          #      The `capsules` flake output contains common devshell modules specified via numtide/devshell.
+          #    '';
+          #    inventory = inputs.flake-schemas.lib.derivationsInventory "Devshell Capsules" false;
+          #  };
+          #};
         };
         flakelight.builtinFormatters = false;
       }
