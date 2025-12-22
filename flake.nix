@@ -72,6 +72,9 @@
           clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
           spdx = pkgs: spdx-util.packages.${pkgs.system}.default;
+          claude-code = pkgs: inputs.llm-agents.packages.${pkgs.system}.claude-code;
+          codex = pkgs: inputs.llm-agents.packages.${pkgs.system}.codex;
+          gemini-cli = pkgs: inputs.llm-agents.packages.${pkgs.system}.gemini-cli;
         };
         templates = import ./templates;
         outputs = {

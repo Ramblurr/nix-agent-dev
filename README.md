@@ -24,7 +24,7 @@ Available capsules:
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # tracks nixpkgs unstable branch
     devshell.url = "github:numtide/devshell";
     devenv.url = "https://flakehub.com/f/ramblurr/nix-devenv/*";
-    devenv.nixpkgs.follows = "nixpkgs";
+    devenv.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
