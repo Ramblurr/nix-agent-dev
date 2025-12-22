@@ -3,7 +3,7 @@
     "config:recommended",
     "github>ramblurr/renovate-preset-deps-edn-gitlibs"
   ],
-  "schedule": "on sunday",
+  "schedule": "before 6pm on sunday",
   "separateMajorMinor": false,
   "labels": ["renovate"],
   "groupName": "uncategorized",
@@ -12,5 +12,13 @@
       "matchDatasources": ["clojure"],
       "groupName": "clojure deps"
     }
-  ]
+  ],
+  "nix": {
+    "enabled": true,
+    "lockFileMaintenance": true
+  },
+  "lockFileMaintenance": {
+    "enabled": false,
+    "schedule": ["before 6pm on sunday"]
+  }
 }

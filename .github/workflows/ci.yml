@@ -28,15 +28,16 @@ jobs:
       - uses: DeterminateSystems/determinate-nix-action@main
       - uses: DeterminateSystems/flakehub-cache-action@main
       - uses: DeterminateSystems/flake-checker-action@main
-      - name: nix flake check
-        run: |
-          nix flake check --accept-flake-config --all-systems
-      - run: |
-          nix build --accept-flake-config .#devShells.x86_64-linux.default
-          nix build --accept-flake-config .#homeConfigurations.catnip.activationPackage
-          nix build --accept-flake-config .#homeConfigurations.root.activationPackage
-          nix build --accept-flake-config .#homeConfigurations.vscode.activationPackage
-          nix build --accept-flake-config .#packages.x86_64-linux.catnipContainer.copyToDockerDaemon
+      - run: nix flake check --accept-flake-config --all-systems
+      - run: nix build --accept-flake-config .#devShells.x86_64-linux.default
+      - run: nix build --accept-flake-config .#homeConfigurations.catnip.activationPackage
+      - run: nix build --accept-flake-config .#homeConfigurations.root.activationPackage
+      - run: nix build --accept-flake-config .#homeConfigurations.vscode.activationPackage
+      - run: nix build --accept-flake-config .#devShells.x86_64-linux.default
+        working-directory: templates/clojure
+      - run: nix build --accept-flake-config .#devShells.x86_64-linux.default
+        working-directory: templates/generic
+      - run: nix build --accept-flake-config .#packages.x86_64-linux.catnipContainer.copyToDockerDaemon
 
   publish-flakehub:
     name: Publish to Flakehub

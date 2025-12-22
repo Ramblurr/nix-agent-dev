@@ -75,7 +75,7 @@
         };
         templates = import ./templates;
         outputs = {
-          capsules = import ./devshells;
+          capsules = import ./capsules;
           schemas = inputs.flake-schemas.schemas // {
             capsules = {
               version = 1;
