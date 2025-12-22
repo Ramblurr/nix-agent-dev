@@ -83,9 +83,9 @@ It supports multiple remote agent systems:
 nix develop
 
 # build devcontainer
-docker build -t nix-agent-dev:devcontainer -f .devcontainer/Dockerfile .
+docker build -t nix-devenv:devcontainer -f .devcontainer/Dockerfile .
 # build catnip container
-docker build -t nix-agent-dev:catnip -f Dockerfile.catnip .
+docker build -t nix-devenv:catnip -f Dockerfile.catnip .
 # also reference the .github/workflows/
 ```
 

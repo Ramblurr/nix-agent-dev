@@ -4,7 +4,7 @@ XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 mkdir -p "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
 
-: "${HM_FLAKE_URI:=github:Ramblurr/nix-agent-dev}"
+: "${HM_FLAKE_URI:=github:Ramblurr/nix-devenv}"
 
 # Detect shell rc to append sourcing line (only if missing)
 detect_shell_rc() {

@@ -1,10 +1,10 @@
-{ lib
-, stdenv
-, babashka
-, parinfer-rust
-, makeWrapper
-, fetchFromGitHub
-,
+{
+  lib,
+  stdenv,
+  babashka,
+  parinfer-rust,
+  makeWrapper,
+  fetchFromGitHub,
 }:
 
 stdenv.mkDerivation rec {

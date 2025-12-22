@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export HM_FLAKE_URI=github:Ramblurr/nix-agent-dev
+export HM_FLAKE_URI=github:Ramblurr/nix-devenv
 export USER="${USER:-$(id -un)}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -89,7 +89,7 @@ set -euo pipefail
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 target="$XDG_CONFIG_HOME/home-manager"
 if [[ ! -d "$target" ]]; then
-    git clone https://github.com/Ramblurr/nix-agent-dev "$target"
+    git clone https://github.com/Ramblurr/nix-devenv "$target"
     cd "$target"
 else
     cd "$target"

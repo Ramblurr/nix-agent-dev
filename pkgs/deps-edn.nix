@@ -1,7 +1,8 @@
-{ runCommand
-, replaceVars
-, cacheDirectory ? "~/.cache/clojure"
-, ...
+{
+  runCommand,
+  replaceVars,
+  cacheDirectory ? "~/.cache/clojure",
+  ...
 }:
 let
   depsEdn = replaceVars ../config/deps.edn { inherit cacheDirectory; };

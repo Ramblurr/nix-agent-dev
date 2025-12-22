@@ -1,7 +1,7 @@
-{ pkgs
-, self
-, inputs
-,
+{
+  pkgs,
+  self,
+  inputs,
 }:
 import ../catnipContainer.nix {
   inherit self pkgs;

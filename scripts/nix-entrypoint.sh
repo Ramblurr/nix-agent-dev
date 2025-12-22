@@ -57,7 +57,7 @@ if gosu 1000:1000 bash -c '
   for f in ~/.bashrc ~/.profile ~/.bash_profile; do
     [ -f "$f" ] && [ ! -L "$f" ] && mv "$f" "$f.pre-home-manager"
   done
-  nix run https://flakehub.com/f/DeterminateSystems/fh/0 -- apply home-manager --verbose ramblurr/nix-agent-dev/0
+  nix run https://flakehub.com/f/DeterminateSystems/fh/0 -- apply home-manager --verbose ramblurr/nix-devenv/0
 '; then
     echo "[nix-entrypoint] home-manager activation successful"
 else

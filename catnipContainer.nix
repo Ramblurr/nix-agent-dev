@@ -1,11 +1,11 @@
-{ claude-code
-, determinate-nixd
-, detsys-nix
-, lib
-, nix2container
-, pkgs
-, self
-,
+{
+  claude-code,
+  determinate-nixd,
+  detsys-nix,
+  lib,
+  nix2container,
+  pkgs,
+  self,
 }:
 
 let
