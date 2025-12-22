@@ -72,8 +72,9 @@
           self.overlays.default
         ];
         packages = {
-          catnipContainer = pkgs: (import ./pkgs/catnip-container.nix) { inherit self inputs pkgs; };
           brepl = pkgs: pkgs.callPackage (import ./pkgs/brepl.nix) { };
+          catnipContainer = pkgs: (import ./pkgs/catnip-container.nix) { inherit self inputs pkgs; };
+          clojure-mcp-light = pkgs: pkgs.callPackage (import ./pkgs/clojure-mcp-light.nix) { };
           ramblurr-global-deps-edn = pkgs: pkgs.callPackage (import ./pkgs/deps-edn.nix) { };
         };
         flakelight.builtinFormatters = false;
