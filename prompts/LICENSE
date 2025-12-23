@@ -1,0 +1,9 @@
+Prompts in here are licensed under Apache-2.0 and Copyright (c) 2025 Casey Link unless otherwise stated.
+
+Some material has a different license:
+
+source: https://github.com/mitsuhiko/agent-commands
+license: Apache-2.0
+- commands/handoff.md
+- commands/pickup.md
+- skills/tmux/
