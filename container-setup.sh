@@ -63,18 +63,14 @@ else
 fi
 
 # Prepare home-manager installation
-nix build --impure --no-write-lock-file --no-link --show-trace "${HM_FLAKE_URI}#homeConfigurations.${USER}.activationPackage"
+nix build --accept-flake-config --impure --no-write-lock-file --no-link --show-trace "${HM_FLAKE_URI}#homeConfigurations.${USER}.activationPackage"
 
-BIN_DIR="${HOME}/.local/bin"
-mkdir -p "$BIN_DIR"
-echo 'export PATH=$HOME/.local/bin/:$PATH' >>~/.bashrc
-
-echo ""
 set +u
 set +e
-
 set -x
-
+export BIN_DIR="${HOME}/.local/bin"
+mkdir -p "$BIN_DIR"
+echo 'export PATH=$HOME/.local/bin/:$PATH' >>~/.bashrc
 mv $HOME/.bashrc $HOME/.bashrc.orig
 mv /$HOME/.profile $HOME/.profile.orig
 rm -rf $HOME/.config/clojure
@@ -99,7 +95,7 @@ fi
 if command -v home-manager &> /dev/null; then
     home-manager switch --impure -b backup
 else
-    nix run github:nix-community/home-manager -- switch --impure -b backup
+    nix run --accept-flake-config github:nix-community/home-manager -- switch --impure -b backup
 fi
 EOF
 chmod +x "$BIN_DIR/home-manager-update"
@@ -112,7 +108,7 @@ if command -v home-manager-update &> /dev/null; then
 fi
 if [ -n "${WORKSPACE_FOLDER:-}" ]; then
   cd "$WORKSPACE_FOLDER"
-  nix develop --command -- echo "Start hook: Prepared env for $WORKSPACE_FOLDER"
+  nix develop --accept-flake-config --command -- echo "Start hook: Prepared env for $WORKSPACE_FOLDER"
 fi
 EOF
 chmod +x "$BIN_DIR/dev-env-start"
@@ -125,7 +121,7 @@ if command -v home-manager-update &> /dev/null; then
 fi
 if [ -n "${WORKSPACE_FOLDER:-}" ]; then
   cd "$WORKSPACE_FOLDER"
-  nix develop --command -- echo "Post start hook: Prepared env for $WORKSPACE_FOLDER"
+  nix develop --accept-flake-config --command -- echo "Post start hook: Prepared env for $WORKSPACE_FOLDER"
 fi
 EOF
 chmod +x "$BIN_DIR/dev-env-poststart"
@@ -141,7 +137,7 @@ if [ -d "$WORKSPACE_ROOT" ]; then
         echo "(this could take awhile, please be patient)"
         (
             cd "$FLAKE_DIR"
-            nix build ".#devShells.${SYSTEM}.default"
+            nix build --accept-flake-config ".#devShells.${SYSTEM}.default"
         )
         echo "Seeding Nix cache complete"
     fi
