@@ -95,7 +95,7 @@ fi
 if command -v home-manager &> /dev/null; then
     home-manager switch  --option accept-flake-config true  --impure -b backup
 else
-    nix run --accept-flake-config github:nix-community/home-manager -- switch --impure -b backup
+    nix run --accept-flake-config github:nix-community/home-manager -- switch --option accept-flake-config true --impure -b backup
 fi
 EOF
 chmod +x "$BIN_DIR/home-manager-update"
