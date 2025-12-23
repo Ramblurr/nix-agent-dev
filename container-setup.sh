@@ -27,6 +27,8 @@ if ! command -v nix &>/dev/null && [[ ! -f /nix/receipt.json ]]; then
         echo "Error: curl is required but not installed." >&2
         exit 1
     fi
+    export NIX_INSTALLER_EXTRA_CONF="accept-flake-config = true"
+    export NIX_BUILD_FLAGS="-j auto --accept-flake-config"
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
 else
     echo "Nix is already installed"
