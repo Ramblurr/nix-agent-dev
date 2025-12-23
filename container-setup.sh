@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if command -v mise &>/dev/null; then
+    mise deactivate
+fi
+
 export HM_FLAKE_URI=github:Ramblurr/nix-devenv
 export USER="${USER:-$(id -un)}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
