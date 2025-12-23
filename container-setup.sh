@@ -93,7 +93,7 @@ else
     git reset --hard origin/main
 fi
 if command -v home-manager &> /dev/null; then
-    home-manager switch --impure -b backup
+    home-manager switch  --option accept-flake-config true  --impure -b backup
 else
     nix run --accept-flake-config github:nix-community/home-manager -- switch --impure -b backup
 fi
@@ -132,7 +132,7 @@ WORKSPACE_ROOT="/workspace"
 if [ -d "$WORKSPACE_ROOT" ]; then
     FLAKE_DIR="$(find "$WORKSPACE_ROOT" -maxdepth 2 -name flake.nix -print -quit | xargs -r dirname)"
     if [ -n "$FLAKE_DIR" ]; then
-        SYSTEM="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
+        SYSTEM="$(nix eval --accept-flake-config --raw --impure --expr 'builtins.currentSystem')"
         echo "Seeding Nix cache from flake at $FLAKE_DIR for $SYSTEM"
         echo "(this could take awhile, please be patient)"
         (
