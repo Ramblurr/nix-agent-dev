@@ -1,5 +1,10 @@
 { withCategory, ... }:
 { pkgs, ... }:
+let
+  javaVersion = "25";
+  jdk = pkgs."jdk${javaVersion}";
+  clojure = pkgs.clojure.override { inherit jdk; };
+in
 {
   commands = map (withCategory "clojure") [
     {
@@ -10,8 +15,8 @@
     { package = pkgs.brepl; }
   ];
   packages = [
-    pkgs.clojure
-    pkgs.jdk25
+    jdk
+    clojure
     pkgs.brepl
     pkgs.clojure-mcp-light
     pkgs.clojure-lsp
