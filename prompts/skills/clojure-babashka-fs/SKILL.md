@@ -11,12 +11,12 @@ Cross-platform file system utilities for Clojure. Built on java.nio, works in JV
 
 deps.edn:
 ```clojure
-babashka/fs {:mvn/version "0.5.22"}
+babashka/fs {:mvn/version "0.5.27"}
 ```
 
 Leiningen:
 ```clojure
-[babashka/fs "0.5.22"]
+[babashka/fs "0.5.27"]
 ```
 
 See https://clojars.org/babashka/fs for the latest version.
