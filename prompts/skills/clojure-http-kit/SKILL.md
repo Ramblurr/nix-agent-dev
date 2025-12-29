@@ -21,6 +21,8 @@ Leiningen:
 [http-kit/http-kit "2.8.1"]
 ```
 
+See https://clojars.org/http-kit/http-kit for the latest version.
+
 ## Quick Start
 
 Server:

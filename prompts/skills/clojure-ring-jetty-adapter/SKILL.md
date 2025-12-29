@@ -20,6 +20,8 @@ Leiningen:
 [ring/ring-jetty-adapter "1.15.3"]
 ```
 
+See https://clojars.org/ring/ring-jetty-adapter for the latest version.
+
 ## Quick Start
 
 Basic synchronous handler:

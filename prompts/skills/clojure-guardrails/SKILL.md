@@ -16,10 +16,12 @@ grep -r "guardrails.enabled" deps.edn shadow-cljs.edn 2>/dev/null
 
 **deps.edn:**
 ```clojure
-{:deps {com.fulcrologic/guardrails {:mvn/version "1.2.6"}
-        metosin/malli             {:mvn/version "0.19.2"}}
+{:deps {com.fulcrologic/guardrails {:mvn/version "1.2.16"}
+        metosin/malli             {:mvn/version "0.20.0"}}
  :aliases {:dev {:jvm-opts ["-Dguardrails.enabled=true"]}}}
 ```
+
+See https://clojars.org/com.fulcrologic/guardrails for the latest version.
 
 **Enable at runtime:** `-Dguardrails.enabled=true`
 
