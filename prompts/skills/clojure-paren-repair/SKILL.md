@@ -1,6 +1,6 @@
 ---
 name: clojure-paren-repair
-description: Repair unbalanced parentheses, brackets, and braces in Clojure, ClojureScript, and EDN files. Use when you encounter delimiter mismatch syntax errors after editing .clj, .cljs, .cljc, or .edn files.
+description: Repair unbalanced parentheses, brackets, and braces in Clojure, ClojureScript, and EDN files. Use when you encounter delimiter mismatch syntax errors after editing .clj, .cljs, .cljc, or .edn files, or on clojure syntax errors.
 ---
 
 # Clojure Parenthesis Repair
