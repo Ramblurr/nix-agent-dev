@@ -83,6 +83,10 @@ Some special rules for processes:
 - **gdb**: `tmux ... send-keys -- 'gdb --quiet ./a.out' Enter`; disable paging `tmux ... send-keys -- 'set pagination off' Enter`; break with `C-c`; issue `bt`, `info locals`, etc.; exit via `quit` then confirm `y`.
 - **Other TTY apps** (ipdb, psql, mysql, node, bash): same pattern—start the program, poll for its prompt, then send literal text and Enter.
 
+## Orchestrating coding agents
+
+To spawn and control coding agents (Claude Code, Codex, OpenCode, Pi) via tmux, use the coding-agents Skill. It provides agent-specific invocation, flags, and completion detection patterns.
+
 ## Cleanup
 
 - Kill a session when done: `tmux -S "$SOCKET" kill-session -t "$SESSION"`.
