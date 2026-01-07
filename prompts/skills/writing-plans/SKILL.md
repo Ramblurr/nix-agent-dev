@@ -14,53 +14,10 @@ description: Use when design is complete and you need detailed implementation ta
 - Emphasize how you will test your plan.
 - Present plan to user.
 - Invoke Skill(Planning Documents) to determine document naming (NNN-concept.md pattern).
-- Ask user if they want beads/bd issue tracking (skip if already answered in request).
 - Write plan to `prompts/NNN-concept.md`.
   </required>
 
 # Guidelines
-
-## Beads Issue Tracking (Optional)
-
-Ask the user upfront if they want beads/bd tracking.
-If yes, follow these steps.
-
-### At Start of Planning
-
-1. If user passed an epic id, use that; otherwise skip to next step:
-   ```bash
-   bd list -t epic --status open --json
-   ```
-2. Create or get epic:
-   ```bash
-   # create if it doesnt exist
-   bd create "Plan: <concept>" -t epic --from-template epic
-   # if it already exists
-   bd show <epic-id> --json
-   ```
-3. Create plan task with dependency on research:
-   ```bash
-   bd create "Plan: <concept>" -t task --from-template plan --parent <epic-id> --deps blocks:<research-task-id> --json
-   ```
-
-Important issue fields:
-- PRD Document: path to the output document
-- Research document: path(s) to input material (_report.md, _research.md, _idea.md, etc.)
-
-You must use the appropriate bead template when creating issues (--from-template).
-Template types: `epic`, `plan`, `bug`, `feature`.
-
-You must NEVER leave placeholder text/data when using a bead template.
-If something is not relevant, delete it.
-
-### At End of Planning
-
-1. Update the epic with the prd_document field
-2. Close the plan task:
-   ```bash
-   bd close <plan-task-id> --reason "Planning complete: prompts/NNN-concept.md"
-   ```
-3. Output the epic ID and document path for the next phase
 
 ## Mandatory Agent Consultation
 
@@ -189,16 +146,9 @@ After completing planning, output:
 ```
 ## Planning Complete
 
-Epic: <epic-id> (if using beads)
-Plan Task: <plan-task-id> (closed, if using beads)
 PRD Document: prompts/NNN-concept.md
 
 Ready for implementation.
-```
-
-If using beads, add:
-```
-Next step: Run /breakdown to create implementation issues
 ```
 
 ## Remember

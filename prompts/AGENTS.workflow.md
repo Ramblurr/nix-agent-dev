@@ -14,20 +14,6 @@ The workflow uses a 4-phase approach for complex features:
 For simpler tasks, phases can be skipped or combined as appropriate.
 
 
-## Beads Integration
-
-This workflow integrates with bd (beads) for issue tracking.
-
-All phases create and track issues in bd:
-- Research creates an epic and research task
-- Planning creates a plan task linked to research
-- Breakdown creates implementation issues under the epic
-- Execute works through issues using `bd ready`
-
-Dependencies between issues enforce workflow order.
-Use `bd ready` to find unblocked work.
-
-
 ## Human Approval Gates
 
 Two approval gates require human review before proceeding:

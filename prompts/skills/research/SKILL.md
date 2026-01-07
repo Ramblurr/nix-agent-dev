@@ -9,7 +9,6 @@ description: Pre-implementation research for design, architecture, and impact an
 - Read the 'Guidelines'.
 - Check `extra/` for required reference materials. HALT if missing.
 - Analyze the user's research request.
-- Ask user if they want beads/bd issue tracking (skip if already answered in request).
 - Discover project dependencies and existing patterns.
 - Study reference implementations in `extra/`.
 - Identify all files requiring changes (with line numbers).
@@ -60,11 +59,6 @@ Suggestion: If not present, clone:
 Do not attempt to work around missing materials.
 Do not use web search as a substitute.
 Wait for the user to add the required materials.
-
-## Beads Issue Tracking (Optional)
-
-Ask the user upfront if they want beads/bd tracking.
-If yes, follow these steps.
 
 ### At Start of Research
 
@@ -189,19 +183,6 @@ Follow the naming convention: three digits, hyphenated concept label, underscore
 
 After completing research, output one of the following:
 
-**If using beads:**
-```
-## Research Complete
-
-Epic: <epic-id>
-Research Task: <research-task-id> (closed)
-Document: prompts/NNN-concept_report.md
-
-Next step: Run /pplan to create implementation plan
-Pass epic ID: <epic-id>
-```
-
-**If not using beads:**
 ```
 ## Research Complete
 

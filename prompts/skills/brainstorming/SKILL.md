@@ -36,8 +36,6 @@ Transform rough ideas into fully-formed designs through structured questioning a
 
 ### Phase 4: Planning Handoff
 
-Ask: "Do you want to use beads for issue tracking for this?"
-
 Note the response for later
 
 Ask: "Ready to create the implementation plan?"
@@ -46,7 +44,7 @@ When your human partner confirms (any affirmative response):
 
 - Invoke Planning Document to learn about our document structure
 - Announce: "I'm using the Writing Plans skill to create the implementation plan."
-- Invoke Writing Plans skill (!remember the answer for the beads usage or not)
+- Invoke Writing Plans skill
 - Create detailed Planning Document and place it under prompts/NNN-concept_plan.md
 
 ### Phase 5: Worktree Setup (for implementation)
