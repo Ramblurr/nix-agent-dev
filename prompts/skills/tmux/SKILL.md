@@ -54,6 +54,7 @@ This must ALWAYS be printed right after a session was started and once again at 
 - Prefer literal sends to avoid shell splitting: `tmux -L "$SOCKET" send-keys -t target -l -- "$cmd"`
 - When composing inline commands, use single quotes or ANSI C quoting to avoid expansion: `tmux ... send-keys -t target -- $'python3 -m http.server 8000'`.
 - To send control keys: `tmux ... send-keys -t target C-c`, `C-d`, `C-z`, `Escape`, etc.
+- Send command and execute (C-m = Enter): `tmux ... send-keys -t target "command" C-m` Don't forget to send Enter/C-m when typing commands or confirming input.
 
 ## Watching output
 
