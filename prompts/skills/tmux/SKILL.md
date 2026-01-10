@@ -4,7 +4,30 @@ description: Remote control tmux sessions using tmux-buddy (tmuxb) for interacti
 ---
 # Agent Usage Guide for tmuxb
 
-A practical guide for LLM agents using tmuxb to interact with tmux sessions. This guide emphasizes defensive practices that account for shared terminal sessions and timing uncertainties.
+
+Use tmux as a programmable terminal multiplexer for interactive work.
+
+We use a small tmux wrapper called tmux-buddy (cli command: `tmuxb`).
+It provides a few helpers for LLM agents such as yourself when using tmux.
+
+A practical guide for LLM agents using tmuxb to interact with tmux sessions.
+This guide emphasizes defensive practices that account for shared terminal sessions and timing uncertainties.
+
+
+## Quickstart (isolated socket)
+
+
+```bash
+tmuxb new -S <agent-name>.sock <session-name> # create a new session in an isolated socket
+tmuxb capture   # see the screen inside tmux, including the cursor position
+tmuxb capture --if-changed  # get the output, but only if its changed
+tmux send -- '"echo hello world" :Enter' # Send some key sequences, always remeber to add :Enter if needed, :Enter is never pressed automatically
+tmuxb capture --if-changed # view the results
+```
+
+Using an isolated socket (-S) avoids using the humans' custom tmux config.
+<agent-name> should be something like: claude-codex, codex, gemini. etc It must be a valid part of a filename
+<session-name> the name of the tmux session, a good value is the name of the project
 
 ## Session Files: Simplifying Repeated Commands
 
@@ -270,13 +293,14 @@ tmuxb send demo -- '"vim test.txt" :Enter'
 
 ## Common Mistakes
 
-1. Not capturing before sending commands
-2. Assuming an application started without verifying
-3. Sending a long sequence without checkpoints
-4. Forgetting `--` before keywords like `:C-x`
-5. Not accounting for bash history expansion (`!`)
-6. Assuming the terminal state hasn't changed after time passes
-7. Not verifying mode changes in modal editors
+1. Forgetting to add `:Enter` when sending interactive commands
+2. Not capturing before sending commands
+3. Assuming an application started without verifying
+4. Sending a long sequence without checkpoints
+5. Forgetting `--` before keywords like `:C-x`
+6. Not accounting for bash history expansion (`!` must be escaped)
+7. Assuming the terminal state hasn't changed after time passes
+8. Not verifying mode changes in modal editors
 
 ## Summary
 
@@ -288,4 +312,3 @@ tmuxb send demo -- '"vim test.txt" :Enter'
 - Handle shell quoting carefully (single quotes around EDN with double-quoted strings)
 - Trouble using the tool? tmuxb --help
 - When in doubt, capture again
-
