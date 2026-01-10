@@ -1,110 +1,291 @@
 ---
 name: tmux
-description: "Remote control tmux sessions for interactive CLIs (python, gdb, etc.) by sending keystrokes and scraping pane output."
-license: Vibecoded
+description: Remote control tmux sessions using tmux-buddy (tmuxb) for interactive CLIs (python, gdb, emacs, vim, etc.) by sending keystrokes and scraping pane output.
 ---
+# Agent Usage Guide for tmuxb
 
-# tmux Skill
+A practical guide for LLM agents using tmuxb to interact with tmux sessions. This guide emphasizes defensive practices that account for shared terminal sessions and timing uncertainties.
 
-Use tmux as a programmable terminal multiplexer for interactive work. Works on Linux and macOS with stock tmux; avoid custom config by using a private socket.
+## Session Files: Simplifying Repeated Commands
 
-## Quickstart (isolated socket)
+tmuxb supports a `.tmuxb_session` file that stores the session name and socket path.
+When present, you can omit these from every command.
 
-```bash
-SOCKET_DIR=${TMPDIR:-/tmp}/claude-tmux-sockets  # well-known dir for all agent sockets
-mkdir -p "$SOCKET_DIR"
-SOCKET="$SOCKET_DIR/claude.sock"                # keep agent sessions separate from your personal tmux
-SESSION=claude-python                           # slug-like names; avoid spaces
-tmux -S "$SOCKET" new -d -s "$SESSION" -n shell
-tmux -S "$SOCKET" send-keys -t "$SESSION":0.0 -- 'python3 -q' Enter
-tmux -S "$SOCKET" capture-pane -p -J -t "$SESSION":0.0 -S -200  # watch output
-tmux -S "$SOCKET" kill-session -t "$SESSION"                   # clean up
-```
-
-After starting a session ALWAYS tell the user how to monitor the session by giving them a command to copy paste:
-
-```
-To monitor this session yourself:
-  tmux -S "$SOCKET" attach -t claude-lldb
-
-Or to capture the output once:
-  tmux -S "$SOCKET" capture-pane -p -J -t claude-lldb:0.0 -S -200
-```
-
-This must ALWAYS be printed right after a session was started and once again at the end of the tool loop.  But the earlier you send it, the happier the user will be.
-
-## Socket convention
-
-- Agents MUST place tmux sockets under `CLAUDE_TMUX_SOCKET_DIR` (defaults to `${TMPDIR:-/tmp}/claude-tmux-sockets`) and use `tmux -S "$SOCKET"` so we can enumerate/clean them. Create the dir first: `mkdir -p "$CLAUDE_TMUX_SOCKET_DIR"`.
-- Default socket path to use unless you must isolate further: `SOCKET="$CLAUDE_TMUX_SOCKET_DIR/claude.sock"`.
-
-## Targeting panes and naming
-
-- Target format: `{session}:{window}.{pane}`, defaults to `:0.0` if omitted. Keep names short (e.g., `claude-py`, `claude-gdb`).
-- Use `-S "$SOCKET"` consistently to stay on the private socket path. If you need user config, drop `-f /dev/null`; otherwise `-f /dev/null` gives a clean config.
-- Inspect: `tmux -S "$SOCKET" list-sessions`, `tmux -S "$SOCKET" list-panes -a`.
-
-## Finding sessions
-
-- List sessions on your active socket with metadata: `./scripts/find-sessions.sh -S "$SOCKET"`; add `-q partial-name` to filter.
-- Scan all sockets under the shared directory: `./scripts/find-sessions.sh --all` (uses `CLAUDE_TMUX_SOCKET_DIR` or `${TMPDIR:-/tmp}/claude-tmux-sockets`).
-
-## Sending input safely
-
-- Prefer literal sends to avoid shell splitting: `tmux -L "$SOCKET" send-keys -t target -l -- "$cmd"`
-- When composing inline commands, use single quotes or ANSI C quoting to avoid expansion: `tmux ... send-keys -t target -- $'python3 -m http.server 8000'`.
-- To send control keys: `tmux ... send-keys -t target C-c`, `C-d`, `C-z`, `Escape`, etc.
-- Send command and execute (C-m = Enter): `tmux ... send-keys -t target "command" C-m` Don't forget to send Enter/C-m when typing commands or confirming input.
-
-## Watching output
-
-- Capture recent history (joined lines to avoid wrapping artifacts): `tmux -L "$SOCKET" capture-pane -p -J -t target -S -200`.
-- For continuous monitoring, poll with the helper script (below) instead of `tmux wait-for` (which does not watch pane output).
-- You can also temporarily attach to observe: `tmux -L "$SOCKET" attach -t "$SESSION"`; detach with `Ctrl+b d`.
-- When giving instructions to a user, **explicitly print a copy/paste monitor command** alongside the action don't assume they remembered the command.
-
-## Spawning Processes
-
-Some special rules for processes:
-
-- when asked to debug, use lldb by default
-- when starting a python interactive shell, always set the `PYTHON_BASIC_REPL=1` environment variable. This is very important as the non-basic console interferes with your send-keys.
-
-## Synchronizing / waiting for prompts
-
-- Use timed polling to avoid races with interactive tools. Example: wait for a Python prompt before sending code:
-  ```bash
-  ./scripts/wait-for-text.sh -t "$SESSION":0.0 -p '^>>>' -T 15 -l 4000
-  ```
-- For long-running commands, poll for completion text (`"Type quit to exit"`, `"Program exited"`, etc.) before proceeding.
-
-## Interactive tool recipes
-
-- **Python REPL**: `tmux ... send-keys -- 'python3 -q' Enter`; wait for `^>>>`; send code with `-l`; interrupt with `C-c`. Always with `PYTHON_BASIC_REPL`.
-- **gdb**: `tmux ... send-keys -- 'gdb --quiet ./a.out' Enter`; disable paging `tmux ... send-keys -- 'set pagination off' Enter`; break with `C-c`; issue `bt`, `info locals`, etc.; exit via `quit` then confirm `y`.
-- **Other TTY apps** (ipdb, psql, mysql, node, bash): same pattern—start the program, poll for its prompt, then send literal text and Enter.
-
-## Orchestrating coding agents
-
-To spawn and control coding agents (Claude Code, Codex, OpenCode, Pi) via tmux, use the coding-agents Skill. It provides agent-specific invocation, flags, and completion detection patterns.
-
-## Cleanup
-
-- Kill a session when done: `tmux -S "$SOCKET" kill-session -t "$SESSION"`.
-- Kill all sessions on a socket: `tmux -S "$SOCKET" list-sessions -F '#{session_name}' | xargs -r -n1 tmux -S "$SOCKET" kill-session -t`.
-- Remove everything on the private socket: `tmux -S "$SOCKET" kill-server`.
-
-## Helper: wait-for-text.sh
-
-`./scripts/wait-for-text.sh` polls a pane for a regex (or fixed string) with a timeout. Works on Linux/macOS with bash + tmux + grep.
+### Creating a Session with Auto-Generated File
 
 ```bash
-./scripts/wait-for-text.sh -t session:0.0 -p 'pattern' [-F] [-T 20] [-i 0.5] [-l 2000]
+# Simplest form - creates session on default tmux server
+tmuxb new myproject
+
+# The file contains:
+# {:session "myproject"}
 ```
 
-- `-t`/`--target` pane target (required)
-- `-p`/`--pattern` regex to match (required); add `-F` for fixed string
-- `-T` timeout seconds (integer, default 15)
-- `-i` poll interval seconds (default 0.5)
-- `-l` history lines to search from the pane (integer, default 1000)
-- Exits 0 on first match, 1 on timeout. On failure prints the last captured text to stderr to aid debugging.
+If you need an isolated tmux server (separate from your normal tmux), use `-S`:
+
+```bash
+# Creates session on a dedicated socket
+tmuxb new -S myproject.sock myproject
+
+# The file contains:
+# {:session "myproject", :socket "/run/user/100tmuxb/myproject.sock"}
+```
+
+### Using the Session File
+
+Once `.tmuxb_session` exists, commands automatically use it:
+
+```bash
+# These all work without specifying session or socket:
+tmuxb capture
+tmuxb send -- '"echo hello" :Enter'
+tmuxb list
+```
+
+You can still override with explicit arguments:
+
+```bash
+tmuxb capture other-session                # uses other-session instead
+tmuxb capture -S /other/sock               # uses different socket
+tmuxb capture -S /other/sock other-session # uses different socket and other-session
+```
+
+### File Discovery
+
+tmuxb walks up from the current directory looking for `.tmuxb_session`, similar to how git finds `.git`. This means the file can be in a project root and work from subdirectories.
+
+### Session Lifecycle
+
+```bash
+# Create session (writes .tmuxb_session)
+tmuxb new -S dev.sock myproject
+
+# Work with session (no args needed)
+tmuxb capture
+tmuxb send -- '"make build" :Enter'
+
+# Kill session (auto-deletes .tmuxb_session if it matches)
+tmuxb kill myproject
+```
+
+### Flags for `new`
+
+- `-S, --socket` - Socket path (bare names go to $XDG_RUNTIME_DItmuxb/)
+- `--no-session-file` - Don't create .tmuxb_session
+- `-f, --force` - Overwrite existing .tmuxb_session
+
+## The Cardinal Rule: Always Capture First
+
+Before sending any commands, always capture the current terminal state. The terminal may have changed since you last looked at it.
+
+```bash
+# ALWAYS do this before sending commands
+tmuxb capture
+
+# Or with explicit session if no .tmuxb_session file:
+tmuxb capture SESSION
+```
+
+Why? Because:
+
+1. A human user might be watching and interacting with the same session
+2. Another agent might be sharing the session
+3. A previous command might have produced unexpected output
+4. An application might have crashed or exited
+5. Time has passed and you have no idea what happened
+
+If more than a few seconds have passed since your last capture, capture again. If you're about to send a complex sequence, capture first. When in doubt, capture.
+If in doubt, capture!
+
+## Verify Before Proceeding
+
+When you start an application (vim, emacs, python, etc.), verify it actually started before sending commands to it.
+
+Bad pattern:
+```bash
+# DON'T DO THIS - you have no idea if vim actually started
+tmuxb send demo -- '"vim" :Enter [:Sleep 500] "i" "Hello"'
+```
+
+Good pattern:
+```bash
+# Start vim
+tmuxb send demo -- '"vim" :Enter'
+
+# Wait and verify vim is running
+tmuxb capture demo
+# Look for vim's interface in the output
+
+# Only then send more commands
+tmuxb send demo -- '"i" "Hello"'
+```
+
+This applies to any state transition:
+- Starting an editor (vim, emacs, nano)
+- Entering a REPL (python, node, clojure)
+- Running a command that changes the prompt
+- Opening a menu or dialog
+- Switching modes within an application
+
+## Breaking Up Long Sequences
+
+Don't send extremely long command sequences without verification checkpoints. If something fails early in the sequence, you'll send garbage to whatever state the terminal ends up in.
+
+Bad pattern:
+```bash
+# 30+ seconds of commands with no verification
+tmuxb send demo -- \
+  '"vim" :Enter [:Sleep 500] "i"' \
+  '"line 1" :Enter [:Sleep 1000]' \
+  '"line 2" :Enter [:Sleep 1000]' \
+  # ... 20 more lines ...
+  ':Escape ":wq" :Enter'
+```
+
+Better pattern:
+```bash
+# Start vim
+tmuxb send demo -- '"vim" :Enter'
+sleep 1
+
+# Verify vim started
+tmuxb capture demo
+# Check output shows vim interface
+
+# Now send the content
+tmuxb send demo -- '"i" "line 1" :Enter "line 2" :Enter'
+
+# Verify periodically for long sequences
+tmuxb capture demo
+
+# Continue...
+```
+
+## Handling Shell Quoting
+
+Use `--` to separate tmuxb options from EDN arguments:
+
+```bash
+tmuxb send demo -- :C-x
+tmuxb send demo -- '"hello" :Enter'
+```
+
+For strings with special characters, use appropriate quoting:
+
+```bash
+# Exclamation marks need $'...' quoting (bash history expansion)
+tmuxb send demo -- $'"Hello!" :Enter'
+
+# Or escape with backslash
+tmuxb send demo -- '"Hello World\!" :Enter'
+```
+
+## Timing Considerations
+
+For repeated actions with delays:
+```bash
+# Press down 5 times with 300ms between each
+tmuxb send demo -- '[:Down 5 :delay 300]'
+```
+
+## Working with Vim
+
+Vim has modes. Always be aware of which mode you're in.
+
+```bash
+# Capture first
+tmuxb capture demo
+
+# If in normal mode, enter insert mode before typing
+tmuxb send demo -- '"i" "your text here"'
+
+# Return to normal mode
+tmuxb send demo -- :Escape
+
+# Vim commands start with : in normal mode
+tmuxb send demo -- '":w" :Enter'  # save
+tmuxb send demo -- $'":q!" :Enter'  # quit without saving (note $'' for !)
+```
+
+Verify mode transitions:
+```bash
+# After escaping to normal mode, capture to verify
+tmuxb capture demo
+# Look for -- INSERT -- or similar mode indicator absence
+```
+
+## Working with Emacs
+
+Emacs uses modifier keys extensively:
+
+```bash
+# C-x C-s to save
+tmuxb send demo -- :C-x :C-s
+
+# M-x for command prompt
+tmuxb send demo -- :M-x
+
+# Cancel with C-g
+tmuxb send demo -- :C-g
+```
+
+## Example: Safe Vim Editing Session
+
+Here's a complete example showing defensive practices. With a `.tmuxb_session` file, you can omit the session name:
+
+```bash
+# 1. Capture initial state
+tmuxb capture
+# Verify we're at a shell prompt
+
+# 2. Start vim
+tmuxb send -- '"vim test.txt" :Enter'
+
+# 3. Wait and verify vim started
+tmuxb capture
+# Look for vim interface, check we're not still at shell
+
+# 4. Enter insert mode and type
+tmuxb send -- '"i" "Hello World" :Enter "Line 2"'
+
+# 5. Verify content was entered
+tmuxb capture
+# Check the text appears in the buffer
+
+# 6. Save and quit
+tmuxb send -- ':Escape ":wq" :Enter'
+
+# 7. Verify we're back at shell
+tmuxb capture
+# Confirm shell prompt is visible
+```
+
+Without a session file, specify session explicitly:
+
+```bash
+tmuxb capture demo
+tmuxb send demo -- '"vim test.txt" :Enter'
+# etc.
+```
+
+## Common Mistakes
+
+1. Not capturing before sending commands
+2. Assuming an application started without verifying
+3. Sending a long sequence without checkpoints
+4. Forgetting `--` before keywords like `:C-x`
+5. Not accounting for bash history expansion (`!`)
+6. Assuming the terminal state hasn't changed after time passes
+7. Not verifying mode changes in modal editors
+
+## Summary
+
+- Take advantage of the `.tmuxb_session` file to avoid repeating session/socket args
+- Capture before every send operation
+- Verify state transitions (app started, mode changed, etc.)
+- Break long sequences into verifiable chunks
+- Use `--` before EDN keywords
+- Handle shell quoting carefully (single quotes around EDN with double-quoted strings)
+- Trouble using the tool? tmuxb --help
+- When in doubt, capture again
+
