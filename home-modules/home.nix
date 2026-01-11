@@ -67,7 +67,7 @@
         clojure -X:mcp/clojure :port $PORT
     '')
   ]
-  ++ (with inputs.llm-agents.packages.${pkgs.system}; [
+  ++ (with inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}; [
     claude-code
     codex
     copilot-cli
