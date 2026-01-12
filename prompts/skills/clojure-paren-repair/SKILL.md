@@ -3,28 +3,25 @@ name: clojure-paren-repair
 description: Repair unbalanced parentheses, brackets, and braces in Clojure, ClojureScript, and EDN files. Use when you encounter delimiter mismatch syntax errors after editing .clj, .cljs, .cljc, or .edn files, or on clojure syntax errors.
 ---
 
-# Clojure Parenthesis Repair
+# Clojure Parenthesis Repair (how to fix unbalanced brackets/parens)
 
-The command `clj-paren-repair` is installed on your path.
-
-## Usage
+Use `brepl balance` to fix unbalanced brackets in Clojure files using parmezan:
 
 ```bash
-clj-paren-repair <files>
-clj-paren-repair path/to/file1.clj path/to/file2.clj
+# Fix file in place (default)
+brepl balance src/myapp/core.clj
+
+# Preview fix to stdout
+brepl balance src/myapp/core.clj --dry-run
 ```
 
+This is useful for recovering files with bracket errors.
 ## When to Use
 
 Run this tool when you encounter unbalanced delimiters (parentheses, brackets, braces) in Clojure, ClojureScript, or EDN files.
 
-**IMPORTANT:** Do NOT try to manually repair parenthesis errors. If you encounter a file with unbalanced parentheses or delimiters, run `clj-paren-repair` on that file instead of attempting to fix the delimiters yourself.
-
-## Tool Behavior
-
-- **Delimiter Repair:** Identifies and fixes common delimiter errors such as unbalanced parentheses
-- **Code Formatting:** Automatically formats files with `cljfmt` when processing, regardless of whether a delimiter error was fixed
+**IMPORTANT:** Do NOT try to manually repair parenthesis errors. If you encounter a file with unbalanced parentheses or delimiters, run `brepl balance` on that file instead of attempting to fix the delimiters yourself.
 
 ## If the Tool Fails
 
-If `clj-paren-repair` doesn't fix the problem, report to the user that they need to fix the delimiter error manually. Do not continue attempting repairs.
+If brepl doesn't fix the problem, report to the user that they need to fix the delimiter error manually. Do not continue attempting repairs.
