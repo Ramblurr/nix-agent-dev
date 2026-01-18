@@ -19,17 +19,17 @@
 
   ;; - My primary REPL setup for development
   :repl/dev
-  {:extra-deps {djblue/portal                 {:mvn/version "0.62.0"}
+  {:extra-deps {djblue/portal                 {:mvn/version "0.62.2"}
                 clj-commons/clj-yaml          {:mvn/version "1.0.29"} ; portal yaml support (optional)
                 io.github.tonsky/clj-reload   {:mvn/version "1.0.0"}
-                nrepl/nrepl                   {:mvn/version "1.5.1"}
+                nrepl/nrepl                   {:mvn/version "1.5.2"}
                 cider/cider-nrepl             {:mvn/version "0.58.0"}
                 refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}
                 criterium/criterium           {:mvn/version "0.4.6"}
                 com.github.gnl/playback       {:mvn/version "0.5.4"}
                 jedi-time/jedi-time           {:mvn/version "0.2.1"}
                 lambdaisland/ansi             {:mvn/version "0.2.37"}
-                vvvvalvalval/scope-capture    {:mvn/version "0.3.3"}
+                vvvvalvalval/scope-capture    {:mvn/version "0.3.3-s1"}
                 com.datomic/dev.datafy        {:git/sha "02f8520912464df6bd55382014c03568aa1d0c36"
                                                :git/tag "v0.1"
                                                :git/url "https://github.com/Datomic/dev.datafy.git"}
@@ -41,7 +41,7 @@
 
   ;; - A secondary REPL setup for development, with less dependencies
   :repl/lite
-  {:extra-deps {nrepl/nrepl                   {:mvn/version "1.5.1"}
+  {:extra-deps {nrepl/nrepl                   {:mvn/version "1.5.2"}
                 cider/cider-nrepl             {:mvn/version "0.58.0"}
                 refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}
                 my/dev-repl                   {:git/sha "42127999fd534b47f5e0fa5689fa68fe34c81752"
@@ -52,7 +52,7 @@
 
   :repl/clerk
   {:extra-deps {io.github.nextjournal/clerk   {:mvn/version "0.18.1158"}
-                nrepl/nrepl                   {:mvn/version "1.5.1"}
+                nrepl/nrepl                   {:mvn/version "1.5.2"}
                 cider/cider-nrepl             {:mvn/version "0.58.0"}
                 refactor-nrepl/refactor-nrepl {:mvn/version "3.11.0"}}
    :main-opts  ["--eval" "(require '[nextjournal.clerk])(nextjournal.clerk/show! 'nextjournal.clerk.tap)(nextjournal.clerk/serve! {:browse? true})"
